@@ -24,7 +24,7 @@ public partial class MainWindow
         var panel = trayControls!;
         check(panel.IsVisible && !IsVisible && panel.QuickMonitor.SelectedItem == monitors.First(m => m.IsPrimary)
             && pendingSliderEdits.Count == 0 && monitors.Select(m => m.DayBrightness).SequenceEqual(before),
-            "Tray quick controls open independently, select the main display and do not change settings");
+            $"Tray quick controls open independently, select the main display and do not change settings (tray visible: {panel.IsVisible}; main visible: {IsVisible}; selected: {(panel.QuickMonitor.SelectedItem as MonitorViewModel)?.Id}; primary: {monitors.First(m => m.IsPrimary).Id}; pending edits: {pendingSliderEdits.Count}; brightness: {string.Join(',', monitors.Select(m => m.DayBrightness))}; original: {string.Join(',', before)})");
 
         check(panel.QuickMonitor.Items.Cast<MonitorViewModel>().Select(m => m.DisplayNumber).SequenceEqual(["1", "2", "3"]),
             "Tray monitor buttons use Windows display numbers in numeric order");
