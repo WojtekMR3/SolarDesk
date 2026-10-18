@@ -1,0 +1,12 @@
+Microsoft Windows SDK .NET projection
+Copyright (c) Microsoft Corporation. All rights reserved.
+
+The application includes Windows SDK .NET projection assemblies from the
+Microsoft.Windows.SDK.NET.Ref targeting pack. This package identifies its
+license at https://aka.ms/WinSDKLicenseURL and its project at
+https://aka.ms/WinSDKProjectURL.
+
+The SDK terms are included in Windows-SDK-license.rtf alongside this notice.
+
+These Microsoft components retain their own license terms; SolarDesk's MIT
+license does not replace them. No NVIDIA driver binaries are redistributed.

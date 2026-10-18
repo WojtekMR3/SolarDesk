@@ -1,0 +1,9 @@
+City names and coordinates derived from GeoNames cities15000, downloaded 2026-10-17.
+Source: https://download.geonames.org/export/dump/cities15000.zip
+GeoNames: https://www.geonames.org/
+License: Creative Commons Attribution 4.0 International
+https://creativecommons.org/licenses/by/4.0/
+
+The source was reduced to name, ASCII name, country code, latitude, longitude,
+time zone, and population, then compressed. Data is provided as-is. The lookup
+finds the nearest listed city, not an address or an administrative boundary.
