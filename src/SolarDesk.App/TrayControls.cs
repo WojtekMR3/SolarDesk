@@ -39,10 +39,8 @@ public partial class MainWindow
                 if (trayControls.QuickMonitor.SelectedItem is MonitorViewModel selected) trayMonitorId = selected.Id;
                 UpdateTrayControls();
             };
-            // Keep numeric tabs in Windows display-number order without reordering the main monitor cards.
-            var displayNumbers = new ListCollectionView(monitors);
-            displayNumbers.SortDescriptions.Add(new System.ComponentModel.SortDescription(nameof(MonitorViewModel.DisplayNumberValue), System.ComponentModel.ListSortDirection.Ascending));
-            trayControls.QuickMonitor.ItemsSource = displayNumbers;
+            // Discovery already orders monitors by their Windows desktop positions.
+            trayControls.QuickMonitor.ItemsSource = monitors;
         }
         UpdateTrayControls(force: true);
         trayControls.ShowNearTray();

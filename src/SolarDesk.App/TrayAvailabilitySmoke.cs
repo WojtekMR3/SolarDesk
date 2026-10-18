@@ -61,10 +61,23 @@ public partial class MainWindow
             check(panel.BrightnessSlider.Minimum == 0 && panel.BrightnessValue.Text == primary.SelectedBrightnessText,
                 "Returning to Individual replaces shared values with the selected display's saved brightness");
 
-            window.diagnosticScan = () => { scans++; return Task.FromResult(DemoReadings()); };
+            panel.QuickMonitor.SelectedItem = window.monitors.First(m => m.DisplayNumber == "2");
+            var selectedId = ((MonitorViewModel)panel.QuickMonitor.SelectedItem).Id;
+            window.diagnosticScan = () =>
+            {
+                scans++;
+                return Task.FromResult(DemoReadings().Select(reading => reading with
+                {
+                    Left = reading.Display == "DISPLAY2" ? 3440 : reading.Display == "DISPLAY3" ? -1920 : 0
+                }).ToList());
+            };
             await panel.RefreshDisplays!();
             check(scans == 3 && panel.QuickRefresh.IsEnabled && panel.BrightnessSlider.IsEnabled && !window.IsVisible,
                 "Tray Refresh displays rediscovers monitors without opening the full window");
+            check(panel.QuickMonitor.Items.Cast<MonitorViewModel>().Select(m => m.DisplayNumber).SequenceEqual(["3", "1", "2"])
+                && ((MonitorViewModel)panel.QuickMonitor.SelectedItem).Id == selectedId
+                && ((MonitorViewModel)panel.QuickMonitor.Items[1]).IsPrimary,
+                "Refreshing a changed desktop layout reorders tray buttons while preserving the selected display and primary marker");
             window.monitors.Clear();
             window.UpdateLinkedControls();
             window.ShowTrayControls();

@@ -26,8 +26,9 @@ public partial class MainWindow
             && pendingSliderEdits.Count == 0 && monitors.Select(m => m.DayBrightness).SequenceEqual(before),
             $"Tray quick controls open independently, select the main display and do not change settings (tray visible: {panel.IsVisible}; main visible: {IsVisible}; selected: {(panel.QuickMonitor.SelectedItem as MonitorViewModel)?.Id}; primary: {monitors.First(m => m.IsPrimary).Id}; pending edits: {pendingSliderEdits.Count}; brightness: {string.Join(',', monitors.Select(m => m.DayBrightness))}; original: {string.Join(',', before)})");
 
-        check(panel.QuickMonitor.Items.Cast<MonitorViewModel>().Select(m => m.DisplayNumber).SequenceEqual(["1", "2", "3"]),
-            "Tray monitor buttons use Windows display numbers in numeric order");
+        check(panel.QuickMonitor.Items.Cast<MonitorViewModel>().Select(m => m.DisplayNumber).SequenceEqual(["2", "1", "3"])
+            && ((MonitorViewModel)panel.QuickMonitor.Items[1]).IsPrimary,
+            "Tray monitor buttons follow desktop positions and keep the main display second when it is in the middle");
         Border MonitorScreen(MonitorViewModel monitor) => VisualChildren<Border>(panel.QuickMonitor)
             .Single(border => border.Name == "TrayMonitorScreen" && border.DataContext == monitor);
         check(monitors.All(m => Math.Abs(MonitorScreen(m).ActualWidth / MonitorScreen(m).ActualHeight / m.Shape.Ratio - 1) < 0.06
@@ -144,12 +145,12 @@ public partial class MainWindow
         panel.UpdateLayout();
 
         var unavailable = new MonitorViewModel(DemoReadings()[0] with
-            { Id = "tray-unsupported", Name = "Portrait display · Display 10", Display = "DISPLAY10", PixelWidth = 1080, PixelHeight = 1920, Brightness = null, Contrast = null, Saturation = null }, new MonitorProfile(), ProfileChanged);
+            { Id = "tray-unsupported", Name = "Portrait display · Display 10", Display = "DISPLAY10", Left = 5360, PixelWidth = 1080, PixelHeight = 1920, Brightness = null, Contrast = null, Saturation = null }, new MonitorProfile(), ProfileChanged);
         settings.Monitors[unavailable.Id] = unavailable.Profile;
         monitors.Add(unavailable);
         UpdateLinkedControls();
-        check(panel.QuickMonitor.Items.Cast<MonitorViewModel>().Select(m => m.DisplayNumber).SequenceEqual(["1", "2", "3", "10"]),
-            "Connecting another display adds its numbered button in numeric order");
+        check(panel.QuickMonitor.Items.Cast<MonitorViewModel>().Select(m => m.DisplayNumber).SequenceEqual(["2", "1", "3", "10"]),
+            "Connecting a display on the right preserves desktop order and its Windows number");
         panel.UpdateLayout();
         check(MonitorScreen(unavailable).ActualHeight > MonitorScreen(unavailable).ActualWidth
             && VisualChildren<TextBlock>(panel.QuickMonitor).Any(text => text.Name == "TrayMonitorRatio" && text.DataContext == unavailable && text.Text == "9:16"),

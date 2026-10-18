@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.9.6
+
+- Order tray monitor buttons by their actual Windows desktop positions, left to right, matching the full window.
+- Keep display numbers, aspect ratios, and the MAIN marker attached to their displays, including when the primary display is in the middle.
+- Preserve the selected display when a refreshed desktop layout changes the order, without adding background polling.
+
 ## 2.9.5
 
 - Show numbered monitor silhouettes in the tray selector, scaled to each display's current aspect ratio, including ultrawide and portrait layouts.

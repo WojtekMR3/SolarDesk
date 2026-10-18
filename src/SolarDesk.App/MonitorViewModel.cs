@@ -37,7 +37,6 @@ public sealed partial class MonitorViewModel(MonitorReading reading, MonitorProf
     public string Name => Reading.Name;
     public string ShortName => Name.Split(" · ")[0];
     public string DisplayNumber => new string(Reading.Display.Where(char.IsDigit).ToArray());
-    public int DisplayNumberValue => int.TryParse(DisplayNumber, out int number) ? number : int.MaxValue;
     public string PositionLabel { get; init; } = "Display";
     public bool HasBrightness => Reading.Brightness.HasValue;
     public bool HasContrast => Reading.Contrast.HasValue;
