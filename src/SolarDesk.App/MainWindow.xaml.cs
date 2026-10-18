@@ -508,6 +508,9 @@ public partial class MainWindow : Window
     }
 
     private async void AutomationClick(object sender, RoutedEventArgs e)
+        => await ToggleAutomationAsync();
+
+    private async Task ToggleAutomationAsync()
     {
         if (settings.AutoEnabled)
         {
@@ -517,8 +520,19 @@ public partial class MainWindow : Window
         }
         else
         {
-            if (!settings.HasLocation) { AutomationButton.IsChecked = false; ShowLocation(enableAuto: true); return; }
-            if (!monitors.Any(m => m.Enabled && m.CanControl)) { Message("Enable at least one display with working DDC/CI first."); return; }
+            if (!settings.HasLocation)
+            {
+                UpdateScheduleDisplay();
+                if (!IsVisible) ShowFromTray();
+                ShowLocation(enableAuto: true);
+                return;
+            }
+            if (!monitors.Any(m => m.Enabled && m.CanControl))
+            {
+                Message("Enable at least one display with working DDC/CI first.");
+                UpdateScheduleDisplay();
+                return;
+            }
             settings.AutoEnabled = true;
             Message("Automation enabled. SolarDesk follows your local sunrise and sunset.");
         }
@@ -913,6 +927,7 @@ public partial class MainWindow : Window
         await CheckTrayControlsAsync(Check, directory);
         await CheckBackgroundActivityAsync(Check);
         await CheckTrayAvailabilityAsync(Check);
+        await CheckTrayAutoAsync(Check);
         Message("Changes apply instantly and save automatically.");
         File.WriteAllLines(output, report);
     }

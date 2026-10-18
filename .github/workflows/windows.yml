@@ -37,4 +37,6 @@ jobs:
           path: |
             artifacts/ui-smoke.txt
             artifacts/preview.png
+            artifacts/tray-day.png
+            artifacts/tray-night.png
           if-no-files-found: ignore

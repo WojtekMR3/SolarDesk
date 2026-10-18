@@ -12,10 +12,15 @@
           </StackPanel>
           <Button Content="&#xD7;" HorizontalAlignment="Right" VerticalAlignment="Top" Style="{StaticResource QuietButton}" Padding="10,0" MinHeight="28" FontSize="20" Click="DismissClick" AutomationProperties.Name="Close quick controls"/>
         </Grid>
-        <UniformGrid Columns="2" Margin="0,0,0,12">
+        <Grid Margin="0,0,0,12">
+          <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
           <RadioButton x:Name="QuickDay" Content="Day" GroupName="QuickProfile" Style="{StaticResource ProfileTab}" Padding="12,7" MinWidth="0" MinHeight="36" Click="DayClick"/>
-          <RadioButton x:Name="QuickNight" Content="Night" GroupName="QuickProfile" Style="{StaticResource ProfileTab}" Padding="12,7" MinWidth="0" MinHeight="36" Click="NightClick"/>
-        </UniformGrid>
+          <RadioButton x:Name="QuickNight" Grid.Column="1" Content="Night" GroupName="QuickProfile" Style="{StaticResource ProfileTab}" Padding="12,7" MinWidth="0" MinHeight="36" Click="NightClick"/>
+          <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="12,0,0,0">
+            <TextBlock Text="Auto" VerticalAlignment="Center" Margin="0,0,8,0"/>
+            <ToggleButton x:Name="QuickAuto" Style="{StaticResource Switch}" Click="AutoClick" ToolTipService.ShowOnDisabled="True" AutomationProperties.Name="Quick automatic sunrise and sunset schedule"/>
+          </StackPanel>
+        </Grid>
         <TextBlock Text="Control mode" Foreground="{DynamicResource Muted}" FontSize="11" Margin="0,0,0,4"/>
         <ComboBox x:Name="QuickMode" Style="{StaticResource SettingsChoice}" SelectionChanged="ModeChanged" AutomationProperties.Name="Quick control mode">
           <ComboBoxItem Content="Individual"/>

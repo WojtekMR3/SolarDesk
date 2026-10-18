@@ -12,6 +12,7 @@ public partial class TrayQuickControls : Window
     private bool closingForExit;
     private const uint SwpNoSize = 0x0001, SwpNoActivate = 0x0010;
     internal Func<bool, Task>? SelectProfile { get; set; }
+    internal Func<Task>? ToggleAutomation { get; set; }
     internal Action? SelectMonitor { get; set; }
     internal Action? OpenSettings { get; set; }
     internal Func<Task>? RefreshDisplays { get; set; }
@@ -59,6 +60,7 @@ public partial class TrayQuickControls : Window
     private void DismissClick(object sender, RoutedEventArgs e) => Hide();
     private async void DayClick(object sender, RoutedEventArgs e) { if (SelectProfile is not null) await SelectProfile(false); }
     private async void NightClick(object sender, RoutedEventArgs e) { if (SelectProfile is not null) await SelectProfile(true); }
+    private async void AutoClick(object sender, RoutedEventArgs e) { if (ToggleAutomation is not null) await ToggleAutomation(); }
     private void MonitorChanged(object sender, SelectionChangedEventArgs e) => SelectMonitor?.Invoke();
     private void ModeChanged(object sender, SelectionChangedEventArgs e) => SelectMode?.Invoke(QuickMode.SelectedIndex);
     private void ControlChanged(object sender, RoutedPropertyChangedEventArgs<double> e)

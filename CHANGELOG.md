@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.9.3
+
+- Add an Auto toggle beside Day/Night in tray quick controls, synchronized with the main window and saved automation setting.
+- Reuse the existing scheduling behavior: enabling Auto follows the sun immediately; disabling it keeps the selected profile active.
+- Open location setup when Auto needs a location, and explain when no enabled display can accept automatic control.
+- Update the toggle through existing UI events without adding background polling or timers.
+
 ## 2.9.2
 
 - Refresh tray values whenever the panel opens, and calculate Mass/Offset controls directly from monitor profiles instead of hidden main-window controls.

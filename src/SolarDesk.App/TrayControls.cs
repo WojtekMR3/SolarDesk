@@ -20,6 +20,7 @@ public partial class MainWindow
             trayControls = new TrayQuickControls();
             trayControls.Resources.MergedDictionaries.Add(Resources);
             trayControls.SelectProfile = ApplySelectedProfileAsync;
+            trayControls.ToggleAutomation = ToggleAutomationAsync;
             trayControls.OpenSettings = ShowFromTray;
             trayControls.RefreshDisplays = () => RefreshTrayDisplaysAsync(force: true);
             trayControls.SelectMode = index =>
@@ -72,6 +73,11 @@ public partial class MainWindow
         {
             panel.QuickDay.IsChecked = !selectedNightProfile;
             panel.QuickNight.IsChecked = selectedNightProfile;
+            panel.QuickAuto.IsChecked = settings.AutoEnabled;
+            panel.QuickAuto.IsEnabled = ready && (settings.AutoEnabled || !settings.HasLocation || monitors.Any(m => m.Enabled && m.CanControl));
+            panel.QuickAuto.ToolTip = !settings.HasLocation ? "Set a location to follow sunrise and sunset."
+                : !panel.QuickAuto.IsEnabled ? "Enable at least one display with working controls in full settings."
+                : "Switch between day and night settings with the sun";
             panel.QuickMode.SelectedIndex = (int)settings.LinkMode;
             panel.QuickSchedule.Text = NextEventText.Text;
             bool individual = settings.LinkMode == MonitorLinkMode.Individual;
