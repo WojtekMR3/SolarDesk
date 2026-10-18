@@ -7,6 +7,7 @@ Run these steps on Windows with a .NET 8 SDK (8.0.4xx). Keep the working tree cl
 3. Inspect the ZIP. It should contain the executable, documentation, licenses, and data attribution. Test the extracted app on Windows with compatible hardware before claiming new hardware support. Automated checks use simulated monitors.
 4. Push the reviewed commit and wait for the Windows build workflow to pass.
 5. Create a version tag at that commit and publish a GitHub release with the ZIP and checksum. Use the version's notes from `CHANGELOG.md`; identify known limitations, including unsigned builds.
+6. After the release is published, update both direct ZIP links and the displayed version in `README.md`. Keep the download button linked to `/releases/download/v<version>/SolarDesk-<version>-win-x64.zip` so one click starts the download. Include the same direct download link at the top of the release notes, and verify it before pushing the README update.
 
 Example (replace the version and notes filename):
 
