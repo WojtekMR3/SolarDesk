@@ -5,6 +5,7 @@ namespace SolarDesk;
 
 public partial class App : Application
 {
+    public const string DisplayName = "Sunset Monitor";
     private Mutex? singleInstance;
     private EventWaitHandle? activateEvent;
     private RegisteredWaitHandle? activateWait;
@@ -55,10 +56,13 @@ public partial class App : Application
         if (!diagnostic)
         {
             string user = System.Security.Principal.WindowsIdentity.GetCurrent().User?.Value ?? Environment.UserName;
+            // Keep the legacy identity so old and renamed builds cannot control monitors simultaneously.
             string name = "Local\\SolarDesk-" + user;
             singleInstance = new Mutex(true, name, out ownsMutex);
             activateEvent = new EventWaitHandle(false, EventResetMode.AutoReset, name + "-activate");
             if (!ownsMutex) { activateEvent.Set(); Shutdown(); return; }
+            try { StartupRegistration.MigrateLegacy(); }
+            catch (Exception ex) { Log(ex); }
         }
         var main = new MainWindow(diagnostic);
         if (performance) main.ShowActivated = false;
@@ -92,8 +96,9 @@ public partial class App : Application
         }
     }
 
+    // Retain the existing location so upgrades keep all profiles, preferences, and recovery files.
     public static string DataDirectory => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SolarDesk");
-    public static string VersionLabel => $"SolarDesk {typeof(App).Assembly.GetName().Version?.ToString(3)}";
+    public static string VersionLabel => $"{DisplayName} {typeof(App).Assembly.GetName().Version?.ToString(3)}";
     public static string? Argument(string[] args, string name)
     {
         int i = Array.IndexOf(args, name);

@@ -26,7 +26,7 @@ jobs:
       - name: Upload release files
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
-          name: SolarDesk-win-x64
+          name: SunsetMonitor-win-x64
           path: artifacts/releases/*
           if-no-files-found: error
       - name: Upload UI check report
@@ -37,6 +37,8 @@ jobs:
           path: |
             artifacts/ui-smoke.txt
             artifacts/preview.png
+            artifacts/theme-day.png
+            artifacts/theme-night.png
             artifacts/tray-day.png
             artifacts/tray-night.png
           if-no-files-found: ignore

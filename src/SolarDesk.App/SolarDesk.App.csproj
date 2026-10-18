@@ -6,10 +6,12 @@
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <AssemblyName>SolarDesk</AssemblyName>
+    <AssemblyName>SunsetMonitor</AssemblyName>
+    <AssemblyTitle>Sunset Monitor</AssemblyTitle>
+    <Product>Sunset Monitor</Product>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <ApplicationIcon>Assets/SolarDesk.ico</ApplicationIcon>
-    <Version>2.9.6</Version>
+    <Version>2.9.7</Version>
     <Copyright>Copyright (c) 2026 WojtekMR3</Copyright>
     <Description>Monitor brightness and contrast that follow the sun.</Description>
   </PropertyGroup>

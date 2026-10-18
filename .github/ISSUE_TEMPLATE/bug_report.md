@@ -1,6 +1,6 @@
 ---
 name: Bug report
-about: Report a problem with SolarDesk
+about: Report a problem with Sunset Monitor
 title: ''
 labels: bug
 assignees: ''
@@ -15,7 +15,7 @@ Describe the problem and what you expected.
 3.
 
 **Environment**
-- SolarDesk version:
+- Sunset Monitor version:
 - Windows version:
 - Monitor model(s):
 - Connection (HDMI / DisplayPort / USB-C / dock):

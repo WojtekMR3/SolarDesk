@@ -1,6 +1,6 @@
 # Background performance
 
-SolarDesk is designed to stay quiet while another application or game has focus:
+Sunset Monitor is designed to stay quiet while another application or game has focus:
 
 - Stars, sun rays, weather particles, and theme transitions stop when the main window loses focus, is minimized, or is hidden. They resume when the window is active again.
 - Weather requests wait until the main window is active. Unfinished requests are cancelled when it goes into the background.
@@ -12,7 +12,7 @@ The standalone executable leaves embedded assemblies uncompressed; the download 
 
 ## Measured comparison: 2.9.0 to 2.9.1
 
-Measured on 18 October 2026, on the same Windows PC with 16 logical processors, using the standalone x64 builds, three simulated monitors, and 60 seconds per phase. The 2.9.0 baseline was commit `2b604a9` with only the diagnostic harness and counters added. No other SolarDesk instance or build/test job ran during either measurement. The 2.9.1 build uses the uncompressed executable described above.
+Measured on 18 October 2026, on the same Windows PC with 16 logical processors, using the standalone x64 builds, three simulated monitors, and 60 seconds per phase. The 2.9.0 baseline was commit `2b604a9` with only the diagnostic harness and counters added. No other Sunset Monitor instance or build/test job ran during either measurement. The 2.9.1 build uses the uncompressed executable described above.
 
 | Scenario | 2.9.0 CPU | 2.9.1 CPU | 2.9.0 average working set | 2.9.1 average working set |
 | --- | ---: | ---: | ---: | ---: |
@@ -28,7 +28,7 @@ The executable grew from approximately 75 MiB to 180 MiB on disk. This is a disk
 
 ## Reproduce the measurement
 
-Use a dedicated test desktop or an isolated Windows environment. This benchmark shows a demo window; it must not run on someone's active working desktop. Build the standalone executable, close other SolarDesk instances, and run:
+Use a dedicated test desktop or an isolated Windows environment. This benchmark shows a demo window; it must not run on someone's active working desktop. Build the standalone executable, close other Sunset Monitor instances, and run:
 
 ```powershell
 .\build.ps1
@@ -38,7 +38,7 @@ Use a dedicated test desktop or an isolated Windows environment. This benchmark 
 For a different executable or output path:
 
 ```powershell
-.\benchmark.ps1 -Executable .\dist\SolarDesk\SolarDesk.exe -Seconds 60 -Output .\artifacts\performance.json -IncludeUi
+.\benchmark.ps1 -Executable .\dist\SunsetMonitor\SunsetMonitor.exe -Seconds 60 -Output .\artifacts\performance.json -IncludeUi
 ```
 
 The benchmark spends the requested number of seconds in each of three phases, with a two-second settling period before each: hidden tray startup, an inactive visible Night window with rain effects enabled, and hidden again after opening the window. It shows a demo window without requesting foreground activation. Foreground state is held inactive inside the diagnostic harness so focus changes elsewhere cannot invalidate the comparison.

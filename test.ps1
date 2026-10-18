@@ -17,7 +17,7 @@ if (-not $IncludeUi) {
 if (-not $Executable) {
     & $sdk build (Join-Path $projectRoot 'src\SolarDesk.App\SolarDesk.App.csproj') -c Release
     if ($LASTEXITCODE -ne 0) { throw 'App build failed.' }
-    $Executable = Join-Path $projectRoot 'src\SolarDesk.App\bin\Release\net8.0-windows10.0.19041.0\SolarDesk.exe'
+    $Executable = Join-Path $projectRoot 'src\SolarDesk.App\bin\Release\net8.0-windows10.0.19041.0\SunsetMonitor.exe'
 }
 $artifacts = Join-Path $projectRoot 'artifacts'
 New-Item -ItemType Directory -Path $artifacts -Force | Out-Null

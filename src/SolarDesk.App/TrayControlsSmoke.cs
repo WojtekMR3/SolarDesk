@@ -22,6 +22,9 @@ public partial class MainWindow
         ShowTrayControls();
         await Dispatcher.InvokeAsync(() => { }, DispatcherPriority.ApplicationIdle);
         var panel = trayControls!;
+        check(panel.Title == "Sunset Monitor quick controls"
+            && VisualChildren<TextBlock>(panel).Any(text => text.Text == App.DisplayName),
+            "Tray quick controls show the Sunset Monitor name");
         check(panel.IsVisible && !IsVisible && panel.QuickMonitor.SelectedItem == monitors.First(m => m.IsPrimary)
             && pendingSliderEdits.Count == 0 && monitors.Select(m => m.DayBrightness).SequenceEqual(before),
             $"Tray quick controls open independently, select the main display and do not change settings (tray visible: {panel.IsVisible}; main visible: {IsVisible}; selected: {(panel.QuickMonitor.SelectedItem as MonitorViewModel)?.Id}; primary: {monitors.First(m => m.IsPrimary).Id}; pending edits: {pendingSliderEdits.Count}; brightness: {string.Join(',', monitors.Select(m => m.DayBrightness))}; original: {string.Join(',', before)})");
@@ -180,7 +183,7 @@ public partial class MainWindow
             "Tray positioning stays inside a secondary display with negative coordinates and scaled panel dimensions");
         panel.RaiseEvent(new KeyEventArgs(Keyboard.PrimaryDevice, PresentationSource.FromVisual(panel)!, Environment.TickCount, Key.Escape)
             { RoutedEvent = Keyboard.PreviewKeyDownEvent });
-        check(!panel.IsVisible && !exiting, "Escape dismisses quick controls without quitting SolarDesk");
+        check(!panel.IsVisible && !exiting, "Escape dismisses quick controls without quitting Sunset Monitor");
         ShowTrayControls();
         ShowFromTray();
         check(!panel.IsVisible && IsVisible, "Opening full settings dismisses the tray panel and restores the main window");

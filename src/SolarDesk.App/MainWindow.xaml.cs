@@ -223,7 +223,7 @@ public partial class MainWindow : Window
                     if (result.Success) monitor.UpdateCurrent(target.Brightness);
                     monitor.Status = result.Success ? (diagnostic ? "Demo controls · hardware untouched" : monitor.Reading.Status) : result.Message;
                 }
-                if (results.Any(r => !r.Success)) Message("A monitor did not accept a setting. See its status below; SolarDesk will retry.");
+                if (results.Any(r => !r.Success)) Message("A monitor did not accept a setting. See its status below; Sunset Monitor will retry.");
             }
         }
         catch (Exception ex) { ReportError(ex); }
@@ -301,7 +301,11 @@ public partial class MainWindow : Window
             NextEventText.Text = "Auto off · stays on " + SelectedProfileName + " until you switch";
         }
         ResumeButton.Content = pauseUntil.HasValue ? "Resume auto" : "Follow sun now";
-        if (tray is not null) tray.Text = ("SolarDesk · " + PhaseText.Text)[..Math.Min(63, ("SolarDesk · " + PhaseText.Text).Length)];
+        if (tray is not null)
+        {
+            string tooltip = App.DisplayName + " · " + PhaseText.Text;
+            tray.Text = tooltip[..Math.Min(63, tooltip.Length)];
+        }
         UpdateTrayControls();
         UpdateCycleInterval();
     }
@@ -534,7 +538,7 @@ public partial class MainWindow : Window
                 return;
             }
             settings.AutoEnabled = true;
-            Message("Automation enabled. SolarDesk follows your local sunrise and sunset.");
+            Message("Automation enabled. Sunset Monitor follows your local sunrise and sunset.");
         }
         CancelQueuedPreview();
         SelectScheduledEditor();
@@ -692,18 +696,12 @@ public partial class MainWindow : Window
         if (diagnostic) return;
         try
         {
-            using var key = Registry.CurrentUser.CreateSubKey(@"Software\Microsoft\Windows\CurrentVersion\Run", true);
-            if (StartupCheck.IsChecked == true) key.SetValue("SolarDesk", "\"" + Environment.ProcessPath + "\" --tray");
-            else key.DeleteValue("SolarDesk", false);
-            Message(StartupCheck.IsChecked == true ? "SolarDesk will start in the tray when you sign in." : "Start at sign-in disabled.");
+            StartupRegistration.SetEnabled(StartupCheck.IsChecked == true);
+            Message(StartupCheck.IsChecked == true ? $"{App.DisplayName} will start in the tray when you sign in." : "Start at sign-in disabled.");
         }
         catch (Exception ex) { StartupCheck.IsChecked = IsStartupEnabled(); ReportError(ex); }
     }
-    private static bool IsStartupEnabled()
-    {
-        using var key = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Run");
-        return key?.GetValue("SolarDesk") is string;
-    }
+    private static bool IsStartupEnabled() => StartupRegistration.IsEnabled();
 
     private void DisplaysChanged(object? sender, EventArgs e) => Dispatcher.BeginInvoke(() =>
     {
@@ -723,7 +721,7 @@ public partial class MainWindow : Window
         Icon = Imaging.CreateBitmapSourceFromHIcon(trayIcon.Handle, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
         var menu = new Forms.ContextMenuStrip();
         menu.Items.Add("Quick display controls", null, (_, _) => ShowTrayControls());
-        menu.Items.Add("Open SolarDesk", null, (_, _) => ShowFromTray());
+        menu.Items.Add("Open " + App.DisplayName, null, (_, _) => ShowFromTray());
         menu.Items.Add("Resume automatic schedule", null, async (_, _) => await ResumeAsync());
         menu.Items.Add("Pause for 1 hour", null, (_, _) =>
         {
@@ -736,8 +734,8 @@ public partial class MainWindow : Window
         menu.Items.Add("Night profile for 1 hour", null, async (_, _) => await ManualAsync(0));
         menu.Items.Add("Restore original settings and pause", null, async (_, _) => await RestoreAsync());
         menu.Items.Add(new Forms.ToolStripSeparator());
-        menu.Items.Add("Quit SolarDesk", null, async (_, _) => await ExitAsync());
-        tray = new Forms.NotifyIcon { Icon = trayIcon, Text = "SolarDesk", ContextMenuStrip = menu, Visible = true };
+        menu.Items.Add("Quit " + App.DisplayName, null, async (_, _) => await ExitAsync());
+        tray = new Forms.NotifyIcon { Icon = trayIcon, Text = App.DisplayName, ContextMenuStrip = menu, Visible = true };
         tray.MouseClick += (_, e) => { if (e.Button == Forms.MouseButtons.Left) ShowTrayControls(); };
         tray.DoubleClick += (_, _) => ShowFromTray();
     }
@@ -783,6 +781,11 @@ public partial class MainWindow : Window
         if (!diagnostic) throw new InvalidOperationException("UI smoke tests require demo mode.");
         var report = new List<string>();
         void Check(bool condition, string text) { if (!condition) throw new InvalidOperationException(text); report.Add("PASS " + text); }
+        CheckStartupRegistration(Check);
+        var executableInfo = FileVersionInfo.GetVersionInfo(Environment.ProcessPath!);
+        Check(Title == App.DisplayName && App.VersionLabel.StartsWith(App.DisplayName + " ", StringComparison.Ordinal)
+            && executableInfo.ProductName == App.DisplayName && executableInfo.FileDescription == App.DisplayName,
+            "Main window, version label, and executable metadata use Sunset Monitor branding");
         Check(monitors.Count == 3 && !settings.AutoEnabled && monitors[1].IsPrimary
             && monitors.Select(m => m.DisplayNumber).SequenceEqual(["2", "1", "3"]), "Starts paused with monitors in desk order and primary display centered");
         AutomationClick(this, new RoutedEventArgs());

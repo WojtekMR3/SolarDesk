@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.9.7
+
+- Rename the app to Sunset Monitor across the main window, tray controls and menus, executable metadata, documentation, and Windows download.
+- Distribute the app as `SunsetMonitor.exe` in `SunsetMonitor-2.9.7-win-x64.zip`.
+- Keep existing SolarDesk settings, profiles, recovery files, and single-instance protection so the rename does not reset preferences or allow conflicting app instances.
+- Migrate an enabled SolarDesk startup entry to Sunset Monitor on first launch. Disabled startup stays disabled, and disabling it removes both names.
+
 ## 2.9.6
 
 - Order tray monitor buttons by their actual Windows desktop positions, left to right, matching the full window.

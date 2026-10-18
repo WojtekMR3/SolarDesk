@@ -9,7 +9,7 @@ $env:NUGET_PACKAGES = Join-Path $projectRoot '.tools\packages'
 $localSdk = Join-Path $projectRoot '.tools\dotnet\dotnet.exe'
 $sdk = if (Test-Path -LiteralPath $localSdk) { $localSdk } else { 'dotnet' }
 $appProject = Join-Path $projectRoot 'src\SolarDesk.App\SolarDesk.App.csproj'
-$output = if ($OutputDirectory) { $OutputDirectory } else { Join-Path $projectRoot 'dist\SolarDesk' }
+$output = if ($OutputDirectory) { $OutputDirectory } else { Join-Path $projectRoot 'dist\SunsetMonitor' }
 if ($FrameworkDependent) {
     & $sdk publish $appProject -c Release -o $output --self-contained false
 } else {
@@ -44,4 +44,4 @@ if (-not $FrameworkDependent) {
         Copy-Item -LiteralPath (Join-Path $packageDirectory $notice.Source) -Destination (Join-Path $licenseDirectory $notice.Target)
     }
 }
-Write-Output "Built: $output\SolarDesk.exe"
+Write-Output "Built: $output\SunsetMonitor.exe"

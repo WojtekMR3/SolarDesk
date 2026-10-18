@@ -1,13 +1,13 @@
-# SolarDesk
+# Sunset Monitor
 
 A Windows tray app that adjusts each monitor's hardware brightness and contrast around local sunrise and sunset.
 
 ## Start
 
-Run `dist\SolarDesk\SolarDesk.exe`. The standalone Windows x64 build includes its runtime and does not require installation or administrator access.
+Run `dist\SunsetMonitor\SunsetMonitor.exe`. The standalone Windows x64 build includes its runtime and does not require installation or administrator access.
 
-1. On the first visible launch, click **Use my location** and allow access in the Windows prompt. SolarDesk saves the location and shows a short city name. **Choose a city instead** works offline when you prefer manual setup or Windows location is unavailable. **Not now** goes straight to the sliders and prevents repeated startup prompts. Click the location chip to return to setup.
-2. Choose **Day** or **Night** to apply and edit that profile's saved brightness, contrast, saturation, and supported additional controls. Both tabs remain available whether Auto is on or off. With **Auto off**, SolarDesk keeps the selected profile until you switch, including across restarts. Turning Auto off holds the currently selected Day or Night values. There is no separate Manual tab or profile editor. Each profile keeps independent Individual, Mass, and Offset values.
+1. On the first visible launch, click **Use my location** and allow access in the Windows prompt. Sunset Monitor saves the location and shows a short city name. **Choose a city instead** works offline when you prefer manual setup or Windows location is unavailable. **Not now** goes straight to the sliders and prevents repeated startup prompts. Click the location chip to return to setup.
+2. Choose **Day** or **Night** to apply and edit that profile's saved brightness, contrast, saturation, and supported additional controls. Both tabs remain available whether Auto is on or off. With **Auto off**, Sunset Monitor keeps the selected profile until you switch, including across restarts. Turning Auto off holds the currently selected Day or Night values. There is no separate Manual tab or profile editor. Each profile keeps independent Individual, Mass, and Offset values.
 3. Turn on **Auto** to use saved Day and Night profiles around sunrise and sunset. Startup, wake, and enabling Auto evaluate the current sun position immediately after discovering the displays: opening at 15:00 during daylight applies Day even if the app last ran at 02:00. Choosing **Day** or **Night** immediately applies that profile and opens it for editing without turning Auto off. Slider and preset edits stay active until the next scheduled fade begins, rather than expiring after one hour. An edit made during a fade stays active until that fade ends. **Follow sun now** catches up immediately. Startup does not restore a temporary edit override. Auto selects the matching editor at the transition midpoint. If Auto is already off, selecting Day/Night leaves it off. Location setup never enables Auto unless you requested it.
 4. Open the gear icon for fade length, timing offsets, startup, monitor inclusion, refresh, and restore. **Start with Windows** adds a current-user startup entry; no background service is installed. Quiet tray startup does not interrupt with setup.
 
@@ -54,15 +54,15 @@ Current temperature and conditions come from [Open-Meteo](https://open-meteo.com
 
 Rain and snow add gentle particles only behind the header. They do not intercept input, pause while hidden or minimized, and respect Windows' animation preference. Settings can disable weather or its effects separately. Settings groups schedule, appearance/startup and connected displays, with a fixed close button and footer.
 
-**Sunrise and sunset reminders** are enabled by default and can be turned off under Settings → Schedule. While SolarDesk is running, a Windows tray notification appears about 30 minutes before each local sun event. It includes the event time and the scheduled brightness-fade interval, including your timing offsets. If Auto is off, temporarily paused, or has no enabled connected displays, the message says so. Reminders use the saved city's time zone and work offline, including while the window is hidden. Windows notification preferences may hide them. Delivery is limited to the first minute of the reminder window, so waking or starting the app later does not replay stale notifications. Delivered event IDs are saved to prevent duplicates after restart. Days without a sunrise or sunset have no reminder for that event.
+**Sunrise and sunset reminders** are enabled by default and can be turned off under Settings → Schedule. While Sunset Monitor is running, a Windows tray notification appears about 30 minutes before each local sun event. It includes the event time and the scheduled brightness-fade interval, including your timing offsets. If Auto is off, temporarily paused, or has no enabled connected displays, the message says so. Reminders use the saved city's time zone and work offline, including while the window is hidden. Windows notification preferences may hide them. Delivery is limited to the first minute of the reminder window, so waking or starting the app later does not replay stale notifications. Delivered event IDs are saved to prevent duplicates after restart. Days without a sunrise or sunset have no reminder for that event.
 
-SolarDesk uses software rendering to avoid partially unpainted window surfaces on affected graphics-driver configurations. This changes only the control panel's rendering, not monitor hardware settings.
+Sunset Monitor uses software rendering to avoid partially unpainted window surfaces on affected graphics-driver configurations. This changes only the control panel's rendering, not monitor hardware settings.
 
 ## Compatibility and troubleshooting
 
 DDC/CI must be enabled in the monitor's on-screen menu. Some docks, adapters, HDR modes or monitor presets can block one or both controls. Click **Refresh displays** after enabling DDC/CI or changing a connection. Built-in laptop panel/WMI brightness control is not implemented; this app targets external DDC/CI monitors. Use only one automatic DDC controller at a time to avoid competing settings.
 
-Automatic location requires Windows Location Services. The first-launch setup explains its purpose; clicking **Use my location** invokes the native permission API on the foreground UI thread. Coordinates are read only after access is allowed. Windows determines location using its configured providers; SolarDesk makes no IP-geolocation or reverse-geocoding web request. A timeout or denial preserves the saved location and offers retry, Windows settings, or city search. The permission decision is made by you in Windows. Windows controls whether it shows a system prompt based on its version and existing permissions.
+Automatic location requires Windows Location Services. The first-launch setup explains its purpose; clicking **Use my location** invokes the native permission API on the foreground UI thread. Coordinates are read only after access is allowed. Windows determines location using its configured providers; Sunset Monitor makes no IP-geolocation or reverse-geocoding web request. A timeout or denial preserves the saved location and offers retry, Windows settings, or city search. The permission decision is made by you in Windows. Windows controls whether it shows a system prompt based on its version and existing permissions.
 
 City labels and search use a bundled GeoNames city catalog. Automatic location uses your actual saved coordinates for solar calculations; a nearby city is only a label, prefixed with "Near" beyond 20 km. Locations more than 150 km from a listed city use "Saved location". Search uses the selected city's coordinates and time zone. The catalog includes larger cities and administrative capitals, not every village or municipal boundary.
 
@@ -72,9 +72,11 @@ City labels and search use a bundled GeoNames city catalog. Automatic location u
 
 Settings and recovery backup: `%LOCALAPPDATA%\SolarDesk\settings.json` and `settings.json.bak`.
 
+This folder retains the app's former name so Sunset Monitor reads existing SolarDesk profiles and preferences without resetting or duplicating them.
+
 Errors: `%LOCALAPPDATA%\SolarDesk\errors.log` (rotated at about 1 MB).
 
-Startup entry, only if enabled: `HKCU\Software\Microsoft\Windows\CurrentVersion\Run\SolarDesk`.
+Startup entry, only if enabled: `HKCU\Software\Microsoft\Windows\CurrentVersion\Run\Sunset Monitor`.
 
 Settings are written through a temporary file. A readable previous version is kept as a backup. If settings cannot be read or saved, automatic control stays paused. Disconnected display profiles are retained. To remove the app, first disable start at sign-in and quit, then delete the app folder; delete the local data folder separately if desired.
 
@@ -93,10 +95,10 @@ If a project-local SDK is present in `.tools\dotnet`, the scripts use it; otherw
 Diagnostic modes:
 
 ```powershell
-SolarDesk.exe --probe --output monitor-probe.json
-SolarDesk.exe --verify-ddc --output ddc-verification.json
-SolarDesk.exe --ui-smoke --output ui-smoke.txt --render preview.png
-SolarDesk.exe --location-api-check --output location-api-check.txt
+SunsetMonitor.exe --probe --output monitor-probe.json
+SunsetMonitor.exe --verify-ddc --output ddc-verification.json
+SunsetMonitor.exe --ui-smoke --output ui-smoke.txt --render preview.png
+SunsetMonitor.exe --location-api-check --output location-api-check.txt
 ```
 
 `--probe` only reads monitor values. `--verify-ddc` writes each exact current raw value back to its monitor and checks the readback; it does not apply day/night profiles. Do not run diagnostics alongside an active DDC scheduler. UI smoke/render mode uses a demo location and three monitors, does not access monitor hardware or network, and does not write your settings. Tests cover profile bindings, keyboard slider commands, vertical range direction, first-launch setup, dismissal, denied permission, city search, and Settings. Previews of the main panel, onboarding, and Settings are saved in `artifacts`. `--location-api-check` confirms API availability without requesting permission or reading location.

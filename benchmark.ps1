@@ -1,5 +1,5 @@
 param(
-    [string]$Executable = (Join-Path $PSScriptRoot 'dist\SolarDesk\SolarDesk.exe'),
+    [string]$Executable = (Join-Path $PSScriptRoot 'dist\SunsetMonitor\SunsetMonitor.exe'),
     [ValidateRange(15, 600)][int]$Seconds = 60,
     [string]$Output = (Join-Path $PSScriptRoot 'artifacts\performance.json'),
     [switch]$IncludeUi
