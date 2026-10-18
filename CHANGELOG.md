@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.9.4
+
+- Arrange tray brightness, contrast, and saturation as three vertical bars matching the main window; dragging upward increases the value.
+- Replace the display dropdown with one-click numbered buttons in Windows display-number order and show the selected monitor's name below them.
+- Preserve each display's saved values when switching, keyboard access, monitor reconnect handling, and the existing Auto toggle.
+- Use centered vertical controls for Offset mode and show saturation intensity from the resulting monitor values.
+
 ## 2.9.3
 
 - Add an Auto toggle beside Day/Night in tray quick controls, synchronized with the main window and saved automation setting.

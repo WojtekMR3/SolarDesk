@@ -26,6 +26,21 @@ public partial class MainWindow
             && pendingSliderEdits.Count == 0 && monitors.Select(m => m.DayBrightness).SequenceEqual(before),
             "Tray quick controls open independently, select the main display and do not change settings");
 
+        check(panel.QuickMonitor.Items.Cast<MonitorViewModel>().Select(m => m.DisplayNumber).SequenceEqual(["1", "2", "3"]),
+            "Tray monitor buttons use Windows display numbers in numeric order");
+        var savedProfiles = monitors.Select(m => DisplayProfileValues.Capture(m.Profile)).ToArray();
+        bool switchesCorrectly = true;
+        foreach (var monitor in panel.QuickMonitor.Items.Cast<MonitorViewModel>())
+        {
+            var button = (ListBoxItem)panel.QuickMonitor.ItemContainerGenerator.ContainerFromItem(monitor);
+            button.SetCurrentValue(ListBoxItem.IsSelectedProperty, true);
+            switchesCorrectly &= panel.QuickMonitor.SelectedItem == monitor && panel.QuickMonitorName.Text == monitor.Name
+                && panel.BrightnessSlider.Value == monitor.SelectedBrightness && panel.ContrastSlider.Value == monitor.SelectedContrast
+                && panel.SaturationSlider.Value == monitor.SelectedSaturation && pendingSliderEdits.Count == 0;
+        }
+        check(switchesCorrectly && monitors.Select((m, i) => DisplayProfileValues.Capture(m.Profile) == savedProfiles[i]).All(same => same),
+            "Selecting numbered monitor buttons loads the correct values without modifying any display profile");
+
         panel.QuickMonitor.SelectedItem = monitors[0];
         int nightBrightness = monitors[0].NightBrightness;
         panel.BrightnessSlider.SetCurrentValue(Slider.ValueProperty, 37.0);
@@ -63,7 +78,7 @@ public partial class MainWindow
         check(panel.QuickError.Text.Contains("Could not save settings", StringComparison.Ordinal),
             "Tray controls surface settings-save failures");
         saveFailed = false;
-        UpdateTrayControls();
+        UpdateScheduleDisplay();
         await RenderTrayAsync(panel, Path.Combine(previewDirectory, "tray-night.png"));
 
         panel.QuickDay.RaiseEvent(new RoutedEventArgs(ButtonBase.ClickEvent));
@@ -91,6 +106,9 @@ public partial class MainWindow
         check(panel.BrightnessSlider.Minimum == -100 && panel.BrightnessValue.Text == "-10"
             && monitors.Select(m => m.DayBrightness).SequenceEqual([20, 40, 60]),
             "Tray Offset accepts signed adjustments and preserves the displays' brightness differences");
+        check(panel.BrightnessSlider.Style == (Style)FindResource("VerticalOffsetControl")
+            && Math.Abs(SaturationAppearance.GetLevel(panel.SaturationSlider) - monitors.Average(m => m.SelectedSaturation)) < 0.01,
+            "Tray Offset uses centered vertical bars and colors saturation from resulting display values");
         panel.BrightnessSlider.SetCurrentValue(Slider.ValueProperty, 100.0);
         await FlushSliderEditsAsync();
         check(panel.BrightnessSlider.Value == 30 && monitors.Select(m => m.DayBrightness).SequenceEqual([60, 80, 100]),
@@ -102,8 +120,12 @@ public partial class MainWindow
             && monitors.Select(m => m.DayBrightness).SequenceEqual([30, 50, 70]),
             "Switching from a negative tray offset restores Individual without a stale or coerced write");
         await RenderTrayAsync(panel, Path.Combine(previewDirectory, "tray-day.png"));
-        check(panel.ActualHeight < 600 && panel.BrightnessSlider.Orientation == Orientation.Horizontal,
-            "All three tray sliders fit in a compact panel");
+        check(panel.ActualHeight < 600 && new[] { panel.BrightnessSlider, panel.ContrastSlider, panel.SaturationSlider }.All(slider =>
+            slider.Orientation == Orientation.Vertical && slider.Template.FindName("PART_Track", slider) is Track track
+            && track.ValueFromDistance(0, -10) > 0),
+            "All three vertical tray bars fit in a compact panel and increase when dragged upward");
+        check(SaturationAppearance.GetLevel(panel.SaturationSlider) == ((MonitorViewModel)panel.QuickMonitor.SelectedItem).SelectedSaturation,
+            "Individual tray saturation color follows the selected display rather than an old shared offset");
         double savedMaxHeight = panel.MaxHeight;
         panel.MaxHeight = 360;
         panel.UpdateLayout();
@@ -113,10 +135,12 @@ public partial class MainWindow
         panel.UpdateLayout();
 
         var unavailable = new MonitorViewModel(DemoReadings()[0] with
-            { Id = "tray-unsupported", Brightness = null, Contrast = null, Saturation = null }, new MonitorProfile(), ProfileChanged);
+            { Id = "tray-unsupported", Name = "Unsupported display · Display 10", Display = "DISPLAY10", Brightness = null, Contrast = null, Saturation = null }, new MonitorProfile(), ProfileChanged);
         settings.Monitors[unavailable.Id] = unavailable.Profile;
         monitors.Add(unavailable);
         UpdateLinkedControls();
+        check(panel.QuickMonitor.Items.Cast<MonitorViewModel>().Select(m => m.DisplayNumber).SequenceEqual(["1", "2", "3", "10"]),
+            "Connecting another display adds its numbered button in numeric order");
         panel.QuickMonitor.SelectedItem = unavailable;
         check(!panel.BrightnessSlider.IsEnabled && !panel.ContrastSlider.IsEnabled && !panel.SaturationSlider.IsEnabled
             && pendingSliderEdits.Count == 0, "Tray disables unsupported controls without writing to the display");

@@ -39,7 +39,10 @@ public partial class MainWindow
                 if (trayControls.QuickMonitor.SelectedItem is MonitorViewModel selected) trayMonitorId = selected.Id;
                 UpdateTrayControls();
             };
-            trayControls.QuickMonitor.ItemsSource = monitors;
+            // Keep numeric tabs in Windows display-number order without reordering the main monitor cards.
+            var displayNumbers = new ListCollectionView(monitors);
+            displayNumbers.SortDescriptions.Add(new System.ComponentModel.SortDescription(nameof(MonitorViewModel.DisplayNumberValue), System.ComponentModel.ListSortDirection.Ascending));
+            trayControls.QuickMonitor.ItemsSource = displayNumbers;
         }
         UpdateTrayControls(force: true);
         trayControls.ShowNearTray();
@@ -129,6 +132,8 @@ public partial class MainWindow
                 BindingOperations.ClearBinding(slider, Slider.MinimumProperty);
                 BindingOperations.ClearBinding(slider, Slider.ToolTipProperty);
                 BindingOperations.ClearBinding(label, TextBlock.TextProperty);
+                slider.Style = (Style)FindResource(offsets is null ? "VerticalControl" : "VerticalOffsetControl");
+                if (name == "Saturation") BindingOperations.ClearBinding(slider, SaturationAppearance.LevelProperty);
                 if (individual)
                 {
                     slider.Minimum = 0;
@@ -137,8 +142,13 @@ public partial class MainWindow
                     {
                         BindQuick(slider, Slider.ValueProperty, selected, "Selected" + name, twoWay: true);
                         BindQuick(label, TextBlock.TextProperty, selected, "Selected" + name + "Text");
+                        if (name == "Saturation") BindQuick(slider, SaturationAppearance.LevelProperty, selected, nameof(MonitorViewModel.SelectedSaturation));
                     }
-                    else { slider.Value = 0; label.Text = detecting ? "Detecting…" : "Unavailable"; }
+                    else
+                    {
+                        slider.Value = 0; label.Text = detecting ? "Detecting…" : "Unavailable";
+                        if (name == "Saturation") SaturationAppearance.SetLevel(slider, 0);
+                    }
                 }
                 else
                 {
@@ -149,6 +159,8 @@ public partial class MainWindow
                     bool mixed = offsets is null && supported.Select(m => m.SelectedValue(name)).Distinct().Skip(1).Any();
                     slider.Minimum = offsets is null ? 0 : -100;
                     slider.Value = value;
+                    if (name == "Saturation")
+                        SaturationAppearance.SetLevel(slider, offsets is not null && supported.Count > 0 ? supported.Average(m => m.SelectedSaturation) : value);
                     label.Text = supported.Count == 0 ? (detecting ? "Detecting…" : "Unavailable")
                         : mixed ? "Mixed" : offsets is not null ? value.ToString("+0;-0;0") : value + "%";
                     slider.ToolTip = supported.Count == 0 ? $"{name} could not be read. Try Refresh displays."

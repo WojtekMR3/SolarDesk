@@ -1,4 +1,4 @@
-<Window x:Class="SolarDesk.TrayQuickControls" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+<Window x:Class="SolarDesk.TrayQuickControls" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="clr-namespace:SolarDesk"
         Title="SolarDesk quick controls" Width="360" SizeToContent="Height" WindowStyle="None" ResizeMode="NoResize"
         ShowInTaskbar="False" Topmost="True" Background="{DynamicResource Surface}" Foreground="{DynamicResource Text}"
         UseLayoutRounding="True" PreviewKeyDown="QuickKeyDown">
@@ -28,25 +28,53 @@
           <ComboBoxItem Content="Offset"/>
         </ComboBox>
         <StackPanel x:Name="MonitorSelector" Margin="0,10,0,0">
-          <TextBlock Text="Display" Foreground="{DynamicResource Muted}" FontSize="11" Margin="0,0,0,4"/>
-          <ComboBox x:Name="QuickMonitor" DisplayMemberPath="Name" SelectedValuePath="Id" Style="{StaticResource SettingsChoice}" SelectionChanged="MonitorChanged" AutomationProperties.Name="Quick controls display"/>
+          <ListBox x:Name="QuickMonitor" SelectionMode="Single" SelectedValuePath="Id" SelectionChanged="MonitorChanged"
+                   Background="Transparent" BorderThickness="0" Padding="0" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Disabled"
+                   KeyboardNavigation.DirectionalNavigation="Cycle" AutomationProperties.Name="Quick controls display">
+            <ListBox.ItemsPanel><ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate></ListBox.ItemsPanel>
+            <ListBox.ItemContainerStyle>
+              <Style TargetType="ListBoxItem">
+                <Setter Property="Width" Value="44"/><Setter Property="Height" Value="36"/><Setter Property="Margin" Value="0,0,8,4"/>
+                <Setter Property="Foreground" Value="{DynamicResource Text}"/><Setter Property="FontWeight" Value="SemiBold"/><Setter Property="Cursor" Value="Hand"/>
+                <Setter Property="ToolTip" Value="{Binding Name}"/><Setter Property="AutomationProperties.Name" Value="{Binding Name}"/>
+                <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ListBoxItem">
+                  <Border x:Name="Surface" CornerRadius="9" Background="{DynamicResource SubtleSurface}" BorderBrush="{DynamicResource TabBorder}" BorderThickness="1">
+                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                  </Border>
+                  <ControlTemplate.Triggers>
+                    <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Surface" Property="Background" Value="{DynamicResource TabHover}"/></Trigger>
+                    <Trigger Property="IsSelected" Value="True"><Setter TargetName="Surface" Property="Background" Value="{DynamicResource Accent}"/><Setter TargetName="Surface" Property="BorderBrush" Value="{DynamicResource AccentText}"/><Setter Property="Foreground" Value="{DynamicResource OnAccent}"/></Trigger>
+                    <Trigger Property="IsKeyboardFocusWithin" Value="True"><Setter TargetName="Surface" Property="BorderThickness" Value="2"/><Setter TargetName="Surface" Property="BorderBrush" Value="{DynamicResource AccentText}"/></Trigger>
+                  </ControlTemplate.Triggers>
+                </ControlTemplate></Setter.Value></Setter>
+              </Style>
+            </ListBox.ItemContainerStyle>
+            <ListBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding DisplayNumber}"/></DataTemplate></ListBox.ItemTemplate>
+          </ListBox>
+          <TextBlock x:Name="QuickMonitorName" Text="{Binding SelectedItem.Name, ElementName=QuickMonitor}" Foreground="{DynamicResource Muted}" FontSize="11" TextTrimming="CharacterEllipsis"
+                     ToolTip="{Binding SelectedItem.Name, ElementName=QuickMonitor}" Margin="0,3,0,0"/>
         </StackPanel>
         <TextBlock x:Name="QuickHint" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,10,0,12"/>
-        <Grid>
-          <TextBlock Text="Brightness"/>
-          <TextBlock x:Name="BrightnessValue" HorizontalAlignment="Right" FontWeight="SemiBold"/>
-        </Grid>
-        <Slider x:Name="BrightnessSlider" Tag="Brightness" ValueChanged="ControlChanged" Foreground="{DynamicResource BrightnessThumb}" Margin="0,2,0,10" AutomationProperties.Name="Quick brightness"/>
-        <Grid>
-          <TextBlock Text="Contrast"/>
-          <TextBlock x:Name="ContrastValue" HorizontalAlignment="Right" FontWeight="SemiBold"/>
-        </Grid>
-        <Slider x:Name="ContrastSlider" Tag="Contrast" ValueChanged="ControlChanged" Margin="0,2,0,10" AutomationProperties.Name="Quick contrast"/>
-        <Grid>
-          <TextBlock Text="Saturation"/>
-          <TextBlock x:Name="SaturationValue" HorizontalAlignment="Right" FontWeight="SemiBold"/>
-        </Grid>
-        <Slider x:Name="SaturationSlider" Tag="Saturation" ValueChanged="ControlChanged" Style="{StaticResource ColorSlider}" Margin="0,2,0,8" AutomationProperties.Name="Quick saturation"/>
+        <UniformGrid Columns="3" Margin="0,0,0,12">
+          <StackPanel>
+            <TextBlock Text="Brightness" FontSize="11" TextAlignment="Center"/>
+            <Viewbox Height="32" Margin="4,4,4,8" StretchDirection="DownOnly"><TextBlock x:Name="BrightnessValue" FontSize="24" FontWeight="Light"/></Viewbox>
+            <Slider x:Name="BrightnessSlider" Tag="Brightness" ValueChanged="ControlChanged" Style="{StaticResource VerticalControl}"
+                    Foreground="{DynamicResource BrightnessFill}" Background="{DynamicResource BrightnessThumb}" AutomationProperties.Name="Quick brightness"/>
+          </StackPanel>
+          <StackPanel>
+            <TextBlock Text="Contrast" FontSize="11" TextAlignment="Center"/>
+            <Viewbox Height="32" Margin="4,4,4,8" StretchDirection="DownOnly"><TextBlock x:Name="ContrastValue" FontSize="24" FontWeight="Light"/></Viewbox>
+            <Slider x:Name="ContrastSlider" Tag="Contrast" ValueChanged="ControlChanged" Style="{StaticResource VerticalControl}"
+                    Foreground="{DynamicResource ContrastFill}" Background="{DynamicResource ContrastThumb}" AutomationProperties.Name="Quick contrast"/>
+          </StackPanel>
+          <StackPanel>
+            <TextBlock Text="Saturation" FontSize="11" TextAlignment="Center"/>
+            <Viewbox Height="32" Margin="4,4,4,8" StretchDirection="DownOnly"><TextBlock x:Name="SaturationValue" FontSize="24" FontWeight="Light"/></Viewbox>
+            <Slider x:Name="SaturationSlider" Tag="Saturation" ValueChanged="ControlChanged" Style="{StaticResource VerticalControl}"
+                    local:SaturationAppearance.Color="{DynamicResource SaturationColor}" BorderBrush="White" AutomationProperties.Name="Quick saturation"/>
+          </StackPanel>
+        </UniformGrid>
         <TextBlock x:Name="QuickError" Foreground="{DynamicResource ErrorColor}" FontSize="11" TextWrapping="Wrap"/>
         <Border Height="1" Background="{DynamicResource Divider}" Margin="0,10,0,10"/>
         <TextBlock x:Name="QuickSchedule" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,12"/>
