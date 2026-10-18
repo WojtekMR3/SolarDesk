@@ -53,6 +53,7 @@ public partial class MainWindow : Window
         InitializeStarMotion();
         InitializeWeather();
         InitializeSunFeatures();
+        InitializeBackgroundActivity();
         ApplyProfileTheme(animate: false);
         Height = Math.Min(860, SystemParameters.WorkArea.Height - 40);
         Width = Math.Min(1000, SystemParameters.WorkArea.Width - 40);
@@ -118,6 +119,7 @@ public partial class MainWindow : Window
         if (!ready || exiting) return;
         if (busy) { cycleRequested = true; forceRequestedCycle |= force; return; }
         busy = true;
+        if (diagnostic) diagnosticCycleCount++;
         try
         {
             var now = CurrentTime;
@@ -125,9 +127,10 @@ public partial class MainWindow : Window
                 manualUntil = NextAutomaticTransition();
             if (manualUntil <= now) { controlRevision++; ClearManualPreview(); }
             if (pauseUntil <= now) pauseUntil = null;
-            if (refreshRequested || now - lastScan >= TimeSpan.FromMinutes(5))
+            if (refreshRequested || (PresentationActive && now - lastScan >= TimeSpan.FromMinutes(5)))
             {
                 refreshRequested = false;
+                if (diagnostic) diagnosticScanCount++;
                 RefreshButton.IsEnabled = false;
                 var readings = diagnostic ? DemoReadings() : await hardware.ScanAsync();
                 // Keep monitor columns in the same left-to-right, then top-to-bottom order as Windows' desktop layout.
@@ -210,7 +213,6 @@ public partial class MainWindow : Window
                 {
                     var monitor = monitors.First(m => m.Id == result.Id);
                     monitor.UpdateAdvancedReading(result.Advanced);
-                    monitor.Status = result.Success ? monitor.Reading.Status : result.Message;
                     var target = targets.First(t => t.Id == result.Id);
                     if (result.Success) monitor.UpdateCurrent(target.Brightness);
                     monitor.Status = result.Success ? (diagnostic ? "Demo controls · hardware untouched" : monitor.Reading.Status) : result.Message;
@@ -294,6 +296,7 @@ public partial class MainWindow : Window
         ResumeButton.Content = pauseUntil.HasValue ? "Resume auto" : "Follow sun now";
         if (tray is not null) tray.Text = ("SolarDesk · " + PhaseText.Text)[..Math.Min(63, ("SolarDesk · " + PhaseText.Text).Length)];
         UpdateTrayControls();
+        UpdateCycleInterval();
     }
 
     private async void ProfileSelected(object sender, RoutedEventArgs e)
@@ -681,7 +684,12 @@ public partial class MainWindow : Window
         return key?.GetValue("SolarDesk") is string;
     }
 
-    private void DisplaysChanged(object? sender, EventArgs e) => Dispatcher.BeginInvoke(() => { refreshRequested = true; });
+    private void DisplaysChanged(object? sender, EventArgs e) => Dispatcher.BeginInvoke(() =>
+    {
+        // Resolution changes can arrive in bursts when entering or leaving a game.
+        refreshRequested = true;
+        UpdateCycleInterval();
+    });
     private void PowerChanged(object sender, PowerModeChangedEventArgs e)
     {
         if (e.Mode == PowerModes.Resume) Dispatcher.BeginInvoke(async () => { refreshRequested = true; await CycleAsync(); });
@@ -896,6 +904,7 @@ public partial class MainWindow : Window
         await CheckReviewRegressionsAsync(Check);
         await CheckProfileModesAsync(Check, directory);
         await CheckTrayControlsAsync(Check, directory);
+        await CheckBackgroundActivityAsync(Check);
         Message("Changes apply instantly and save automatically.");
         File.WriteAllLines(output, report);
     }

@@ -36,7 +36,12 @@ public sealed partial class MonitorViewModel
         Changed(IsNightProfile ? "NightAdvanced" : "DayAdvanced");
         RefreshAdditional();
     }
-    public void UpdateAdvancedReading(AdvancedValues? values) { if (values is not null) latestAdvanced = values; RefreshAdditional(); }
+    public void UpdateAdvancedReading(AdvancedValues? values)
+    {
+        if (values is null || values == latestAdvanced) return;
+        latestAdvanced = values;
+        RefreshAdditional();
+    }
     public void RefreshAdditional()
     {
         if (advancedControls is not null) foreach (var control in advancedControls) control.Refresh();

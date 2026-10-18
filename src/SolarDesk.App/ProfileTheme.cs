@@ -18,8 +18,6 @@ public partial class MainWindow
             star.RenderTransform = drift;
             movingStars.Add((star, drift, star.Opacity));
         }
-        IsVisibleChanged += (_, _) => UpdateStarMotion();
-        StateChanged += (_, _) => UpdateStarMotion();
         SystemParameters.StaticPropertyChanged += MotionPreferenceChanged;
         Closed += (_, _) =>
         {
@@ -36,8 +34,7 @@ public partial class MainWindow
 
     private void UpdateStarMotion()
     {
-        bool shouldMove = IsNightAppearance && IsVisible && !exiting
-            && WindowState != WindowState.Minimized && SystemParameters.ClientAreaAnimation;
+        bool shouldMove = IsNightAppearance && PresentationActive && SystemParameters.ClientAreaAnimation;
         if (shouldMove == starMotionRunning) return;
         if (!shouldMove) { StopStarMotion(); return; }
 
@@ -108,7 +105,7 @@ public partial class MainWindow
     private void ApplyProfileTheme(bool animate)
     {
         bool night = IsNightAppearance;
-        bool motion = animate && SystemParameters.ClientAreaAnimation;
+        bool motion = animate && PresentationActive && SystemParameters.ClientAreaAnimation;
         var palette = new (string Key, string Day, string Night)[]
         {
             ("Text", "#36332F", "#EDF0FF"),

@@ -22,8 +22,6 @@ public partial class MainWindow
         WeatherCheck.IsChecked = settings.WeatherEnabled;
         WeatherEffectsCheck.IsChecked = settings.WeatherEffectsEnabled;
         if (diagnostic) fetchWeather = (_, _, _) => Task.FromResult(new WeatherSnapshot(14, 2, true, DateTimeOffset.UtcNow));
-        IsVisibleChanged += (_, _) => { UpdateWeatherEffects(); if (IsVisible) _ = RefreshWeatherAsync(); };
-        StateChanged += (_, _) => UpdateWeatherEffects();
     }
 
     private void ResetWeather()
@@ -38,7 +36,7 @@ public partial class MainWindow
 
     private async Task RefreshWeatherAsync(bool force = false)
     {
-        if (!ready || exiting || !settings.HasLocation || !settings.WeatherEnabled || (!IsVisible && !force)) return;
+        if (!ready || exiting || !settings.HasLocation || !settings.WeatherEnabled || (!PresentationActive && !force)) return;
         if (weather is not null && !weather.IsFresh(DateTimeOffset.UtcNow)) { weather = null; ShowWeather(unavailable: true); }
         if (weatherCancellation is not null || (!force && DateTimeOffset.UtcNow < nextWeatherRefresh)) return;
         var request = new CancellationTokenSource();
@@ -109,7 +107,7 @@ public partial class MainWindow
             if (child.RenderTransform is TranslateTransform motion) motion.BeginAnimation(TranslateTransform.YProperty, null);
         WeatherParticles.Children.Clear();
         if (weather is null || !weather.IsFresh(DateTimeOffset.UtcNow) || !settings.WeatherEnabled || !settings.WeatherEffectsEnabled
-            || !IsVisible || exiting || WindowState == WindowState.Minimized || !SystemParameters.ClientAreaAnimation) return;
+            || !PresentationActive || !SystemParameters.ClientAreaAnimation) return;
         if (weather.Effect == WeatherEffect.None) return;
         bool snow = weather.Effect == WeatherEffect.Snow;
         var random = new Random(42);

@@ -12,7 +12,7 @@ Enabling **Start with Windows** adds an entry under `HKCU\Software\Microsoft\Win
 
 Choosing a city uses a bundled offline GeoNames catalog. **Use my location** asks Windows for location access. Windows controls permission and the location providers; SolarDesk does not silently track movement or use a web geocoder. Solar calculations run locally using the saved coordinates.
 
-Weather is enabled by default once a location is set. While the window is visible, the app requests current weather from `api.open-meteo.com`, normally every 15 minutes. It sends coordinates rounded to one decimal place. Like other web requests, this exposes your IP address to that service. See [Open-Meteo's terms and privacy policy](https://open-meteo.com/en/terms). Disable weather in Settings to stop those requests; monitor controls and sun scheduling continue working.
+Weather is enabled by default once a location is set. While the main window is visible and active, the app requests current weather from `api.open-meteo.com`, normally every 15 minutes. Requests pause while another app has focus, the window is minimized, or SolarDesk is in the tray. It sends coordinates rounded to one decimal place. Like other web requests, this exposes your IP address to that service. See [Open-Meteo's terms and privacy policy](https://open-meteo.com/en/terms). Disable weather in Settings to stop those requests; monitor controls and sun scheduling continue working.
 
 ## Removing local data
 

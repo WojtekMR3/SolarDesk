@@ -41,6 +41,12 @@ Closing the window keeps SolarDesk in the system tray. Use the tray menu to quit
 - Additional hardware controls such as sharpness, warmth, RGB balance, and gamma when supported; saved presets and hotkeys.
 - Offline city search and sun calculations. Optional weather, background effects, and sunrise/sunset reminders.
 
+## Background performance
+
+SolarDesk stops decorative animations and weather requests when another app has focus, the window is minimized, or it is in the tray. Idle background checks run once per minute; automatic fades still update every ten seconds, and slider edits apply immediately. Periodic monitor rescans wait until the full window is in use; display changes and wake events still trigger discovery.
+
+**Start with Windows** launches directly in the tray without rendering the full window. See [performance measurements and benchmark instructions](docs/performance.md) for measured CPU and memory use and the test limitations.
+
 ## Monitor support
 
 Brightness and contrast use DDC/CI. Support varies by monitor, connection, dock, HDR mode, and picture preset. Unsupported controls are disabled. Built-in laptop brightness is not implemented.

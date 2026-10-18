@@ -31,7 +31,7 @@ public partial class MainWindow
             BindQuick(trayControls.QuickMode, ComboBox.SelectedIndexProperty, LinkModeBox, nameof(ComboBox.SelectedIndex), twoWay: true);
             BindQuick(trayControls.QuickSchedule, TextBlock.TextProperty, NextEventText, nameof(TextBlock.Text));
         }
-        UpdateTrayControls();
+        UpdateTrayControls(force: true);
         trayControls.ShowNearTray();
     }
 
@@ -42,9 +42,9 @@ public partial class MainWindow
             UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged
         });
 
-    private void UpdateTrayControls()
+    private void UpdateTrayControls(bool force = false)
     {
-        if (trayControls is not { } panel || refreshingTrayControls) return;
+        if (trayControls is not { } panel || (!panel.IsVisible && !force) || refreshingTrayControls) return;
         refreshingTrayControls = true;
         try
         {

@@ -13,7 +13,9 @@ $output = if ($OutputDirectory) { $OutputDirectory } else { Join-Path $projectRo
 if ($FrameworkDependent) {
     & $sdk publish $appProject -c Release -o $output --self-contained false
 } else {
-    & $sdk publish $appProject -c Release -r win-x64 -o $output --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:EnableCompressionInSingleFile=true -p:DebugType=None -p:DebugSymbols=false
+    # The download ZIP supplies compression. Keep assemblies directly loadable in
+    # the executable instead of decompressing them into private memory at startup.
+    & $sdk publish $appProject -c Release -r win-x64 -o $output --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:EnableCompressionInSingleFile=false -p:DebugType=None -p:DebugSymbols=false
 }
 if ($LASTEXITCODE -ne 0) { throw 'Build failed.' }
 Copy-Item -LiteralPath (Join-Path $projectRoot 'README.md') -Destination $output

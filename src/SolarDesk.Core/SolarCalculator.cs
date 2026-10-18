@@ -96,6 +96,42 @@ public sealed class SolarSchedule
     private List<SolarEvent> cachedEvents = [];
     private SolarDay? today;
 
+    /// <summary>Sleep longer when idle, but wake at transitions and override deadlines.</summary>
+    public TimeSpan NextUpdateDelay(DateTimeOffset now, AppSettings settings, bool foreground,
+        bool manual, DateTimeOffset? manualUntil, DateTimeOffset? pauseUntil)
+    {
+        double seconds = foreground ? 10 : 60;
+        void WakeAt(DateTimeOffset? deadline)
+        {
+            if (deadline.HasValue) seconds = Math.Min(seconds, Math.Max(0.1, (deadline.Value - now).TotalSeconds));
+        }
+        WakeAt(manualUntil);
+        WakeAt(pauseUntil);
+        if (settings.HasLocation)
+        {
+            Evaluate(now, settings);
+            if (settings.AutoEnabled && !manual && !pauseUntil.HasValue)
+                for (int i = 0; i < cachedEvents.Count; i++)
+                {
+                    double half = TransitionHalfMinutes(cachedEvents, i, settings.TransitionMinutes);
+                    var start = cachedEvents[i].At.AddMinutes(-half);
+                    var end = cachedEvents[i].At.AddMinutes(half);
+                    if (now >= start && now < end) { seconds = Math.Min(seconds, 10); WakeAt(end); break; }
+                    if (start > now) { WakeAt(start); break; }
+                }
+            if (settings.SunRemindersEnabled)
+                foreach (var solarEvent in cachedEvents)
+                {
+                    int offset = solarEvent.IsSunrise ? settings.SunriseOffsetMinutes : settings.SunsetOffsetMinutes;
+                    var reminder = solarEvent.At.AddMinutes(-offset - 30);
+                    if (reminder > now) WakeAt(reminder);
+                    // Preserve retries inside the one-minute notification delivery window.
+                    else if (now < reminder.AddMinutes(1)) seconds = Math.Min(seconds, 10);
+                }
+        }
+        return TimeSpan.FromSeconds(seconds);
+    }
+
     public IReadOnlyList<SolarEvent> GetSolarEvents(DateTimeOffset now, AppSettings settings)
     {
         Evaluate(now, settings);

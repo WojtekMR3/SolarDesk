@@ -641,6 +641,46 @@ Test("Edits expire at the next sun transition, not an arbitrary one-hour timeout
     config.TransitionMinutes = 0;
     Check(scheduler.NextTransitionBoundary(noon, config) == sunset.At);
 });
+Test("Background scheduling sleeps when idle and wakes at fade boundaries", () =>
+{
+    var config = new AppSettings { Latitude = 52.2297, Longitude = 21.0122, TimeZoneId = warsaw.Id,
+        AutoEnabled = true, TransitionMinutes = 30, SunRemindersEnabled = false };
+    var scheduler = new SolarSchedule();
+    var noon = new DateTimeOffset(2026, 10, 18, 12, 0, 0, TimeSpan.Zero);
+    var sunset = scheduler.Evaluate(noon, config).NextEvent!.At;
+    TimeSpan Delay(DateTimeOffset at, bool foreground = false, bool manual = false,
+        DateTimeOffset? until = null, DateTimeOffset? paused = null)
+        => scheduler.NextUpdateDelay(at, config, foreground, manual, until, paused);
+    Check(Delay(noon).TotalSeconds == 60 && Delay(noon, foreground: true).TotalSeconds == 10);
+    Check(Delay(sunset.AddMinutes(-15).AddSeconds(-3)).TotalSeconds == 3);
+    Check(Delay(sunset.AddMinutes(-15)).TotalSeconds == 10);
+    Check(Delay(sunset).TotalSeconds == 10 && Delay(sunset.AddMinutes(15)).TotalSeconds == 60);
+    Check(Delay(sunset.AddMinutes(15).AddSeconds(-2)).TotalSeconds == 2);
+    Check(Delay(sunset, manual: true).TotalSeconds == 60);
+    Check(Delay(sunset, manual: true, until: sunset.AddSeconds(4)).TotalSeconds == 4);
+    Check(Delay(sunset, paused: sunset.AddSeconds(7)).TotalSeconds == 7);
+    config.TransitionMinutes = 0;
+    Check(Delay(sunset.AddSeconds(-2)).TotalSeconds == 2 && Delay(sunset).TotalSeconds == 60);
+    config.AutoEnabled = false;
+    Check(Delay(sunset.AddSeconds(-2)).TotalSeconds == 60);
+});
+Test("Background scheduling preserves reminder windows, deadlines and polar operation", () =>
+{
+    var config = new AppSettings { Latitude = 52.2297, Longitude = 21.0122, TimeZoneId = warsaw.Id,
+        AutoEnabled = false, SunRemindersEnabled = true, SunsetOffsetMinutes = 60 };
+    var scheduler = new SolarSchedule();
+    var noon = new DateTimeOffset(2026, 10, 18, 12, 0, 0, TimeSpan.Zero);
+    var due = scheduler.GetSolarEvents(noon, config).First(e => e.At > noon).At.AddMinutes(-30);
+    TimeSpan Delay(DateTimeOffset at) => scheduler.NextUpdateDelay(at, config, false, false, null, null);
+    Check(Delay(due.AddSeconds(-5)).TotalSeconds == 5);
+    Check(Delay(due).TotalSeconds == 10 && Delay(due.AddSeconds(59)).TotalSeconds == 10);
+    Check(Delay(due.AddMinutes(1)).TotalSeconds == 60);
+    Check(scheduler.NextUpdateDelay(noon, config, false, true, noon.AddSeconds(-1), null).TotalMilliseconds == 100);
+    config.Latitude = 90; config.TimeZoneId = "UTC"; config.AutoEnabled = true;
+    Check(Delay(new DateTimeOffset(2026, 6, 21, 12, 0, 0, TimeSpan.Zero)).TotalSeconds == 60);
+    config.Latitude = null; config.Longitude = null;
+    Check(Delay(noon).TotalSeconds == 60);
+});
 Console.WriteLine($"\n{passed} passed, {failed} failed");
 return failed == 0 ? 0 : 1;
 

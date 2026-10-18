@@ -1,5 +1,16 @@
 # Changelog
 
+## 2.9.1
+
+- Stop stars, sun rays, weather particles, and theme transitions when the main window loses focus, is minimized, or closes to the tray.
+- Defer weather requests until the main window is in use and cancel unfinished requests when it goes into the background.
+- Start directly in the tray without first rendering the full window. Preset hotkeys remain available.
+- Reduce idle background scheduling from six checks per minute to one. Fades retain ten-second updates, with earlier wake-ups for transition boundaries, overrides, and reminders.
+- Defer periodic monitor rescans until the full window is in use. Display changes, wake from sleep, and explicit refresh still trigger discovery.
+- Avoid redundant display notifications and rebinding a hidden quick-controls panel.
+- Reduce runtime memory by keeping executable assemblies uncompressed and applying compression to the download ZIP instead.
+- Add a repeatable CPU and memory benchmark using simulated monitors, without changing saved settings or real displays.
+
 ## 2.9.0
 
 - Single-click the tray icon to open quick brightness, contrast, and saturation controls.

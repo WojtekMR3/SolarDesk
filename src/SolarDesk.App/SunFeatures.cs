@@ -34,8 +34,6 @@ public partial class MainWindow
             SunRayStreaks.Children.Add(ray);
             sunRays.Add((ray, drift, x, y));
         }
-        IsVisibleChanged += (_, _) => UpdateSunRayMotion();
-        StateChanged += (_, _) => UpdateSunRayMotion();
         Closed += (_, _) => StopSunRayMotion();
         // Diagnostics never send desktop notifications or write real settings.
         if (!diagnostic) showSunReminder = reminder => tray?.ShowBalloonTip(10000, reminder.Title, reminder.Message, Forms.ToolTipIcon.Info);
@@ -53,8 +51,7 @@ public partial class MainWindow
 
     private void UpdateSunRayMotion()
     {
-        bool shouldMove = settings.DayRaysEnabled && !IsNightAppearance && IsVisible && !exiting
-            && WindowState != WindowState.Minimized && SystemParameters.ClientAreaAnimation;
+        bool shouldMove = settings.DayRaysEnabled && !IsNightAppearance && PresentationActive && SystemParameters.ClientAreaAnimation;
         if (shouldMove == sunRayMotionRunning) return;
         if (!shouldMove) { StopSunRayMotion(); return; }
         sunRayMotionRunning = true;

@@ -113,13 +113,14 @@ public sealed partial class MonitorViewModel(MonitorReading reading, MonitorProf
     public int NightSaturation { get => Profile.NightSaturation; set => SetControl(value, NightSaturation, v => Profile.NightSaturation = v); }
     public bool HasError => status != Reading.Status && !status.StartsWith("Demo", StringComparison.Ordinal);
     public string ErrorText => HasError ? status : "";
-    public string Status { get => status; set { status = value; OnPropertyChanged(); OnPropertyChanged(nameof(HasError)); OnPropertyChanged(nameof(ErrorText)); } }
+    public string Status { get => status; set { if (status == value) return; status = value; OnPropertyChanged(); OnPropertyChanged(nameof(HasError)); OnPropertyChanged(nameof(ErrorText)); } }
     public string CurrentText => currentText;
     public event PropertyChangedEventHandler? PropertyChanged;
     private void OnPropertyChanged([CallerMemberName] string? property = null) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(property));
     public void UpdateCurrent(int? brightness)
     {
-        if (brightness.HasValue) currentBrightness = brightness.Value;
+        if (!brightness.HasValue || currentBrightness == brightness.Value) return;
+        currentBrightness = brightness.Value;
         OnPropertyChanged(nameof(CurrentText));
     }
     private static string IfAvailable(bool supported, int value) => supported ? value + "%" : "—";

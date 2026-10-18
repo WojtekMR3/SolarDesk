@@ -50,7 +50,8 @@ public partial class App : Application
         }
         string? render = Argument(e.Args, "--render");
         bool smoke = e.Args.Contains("--ui-smoke");
-        bool diagnostic = render is not null || smoke;
+        bool performance = e.Args.Contains("--performance-check");
+        bool diagnostic = render is not null || smoke || performance;
         if (!diagnostic)
         {
             string user = System.Security.Principal.WindowsIdentity.GetCurrent().User?.Value ?? Environment.UserName;
@@ -60,23 +61,25 @@ public partial class App : Application
             if (!ownsMutex) { activateEvent.Set(); Shutdown(); return; }
         }
         var main = new MainWindow(diagnostic);
+        if (performance) main.ShowActivated = false;
         MainWindow = main;
         if (!diagnostic)
             activateWait = ThreadPool.RegisterWaitForSingleObject(activateEvent!, (_, _) => Dispatcher.BeginInvoke(main.ShowFromTray), null, -1, false);
-        main.Show();
+        bool tray = !diagnostic && e.Args.Contains("--tray");
+        if (!tray && !performance) main.Show();
         try
         {
             await main.InitializeAsync();
             if (diagnostic)
             {
+                if (performance) await main.RunPerformanceCheckAsync(Argument(e.Args, "--output") ?? Path.Combine(AppContext.BaseDirectory, "performance.json"),
+                    int.TryParse(Argument(e.Args, "--seconds"), out int seconds) ? Math.Clamp(seconds, 15, 600) : 60);
                 if (smoke) await main.RunUiSmokeAsync(Argument(e.Args, "--output") ?? Path.Combine(AppContext.BaseDirectory, "ui-smoke.txt"));
                 if (render is not null) await main.RenderAsync(render);
                 await main.ExitAsync();
             }
             else
             {
-                bool tray = e.Args.Contains("--tray");
-                if (tray) main.Hide();
                 main.PromptLocationOnFirstLaunch(tray);
             }
         }

@@ -78,7 +78,8 @@ public partial class MainWindow
     private void InitializePresetHotkeys()
     {
         if (diagnostic) return;
-        hotkeySource = HwndSource.FromHwnd(new WindowInteropHelper(this).Handle);
+        // Tray startup needs a message handle for shortcuts without rendering the window.
+        hotkeySource = HwndSource.FromHwnd(new WindowInteropHelper(this).EnsureHandle());
         hotkeySource?.AddHook(PresetWindowMessage);
         RegisterPresetHotkeys();
     }
