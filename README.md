@@ -2,11 +2,11 @@
 
 Monitor controls that follow the sun. SolarDesk is a Windows tray app with separate Day and Night profiles, smooth sunrise/sunset transitions, and controls for multiple displays.
 
-<a href="https://github.com/WojtekMR3/SolarDesk/releases/download/v2.9.1/SolarDesk-2.9.1-win-x64.zip">
+<a href="https://github.com/WojtekMR3/SolarDesk/releases/download/v2.9.2/SolarDesk-2.9.2-win-x64.zip">
   <img src="docs/download-windows.svg" alt="Download for Windows" width="280" height="60">
 </a>
 
-**Free · Windows 10 / 11 (64-bit) · Version 2.9.1**
+**Free · Windows 10 / 11 (64-bit) · Version 2.9.2**
 
 Click the button to download the ZIP. Right-click the downloaded file, choose **Extract All**, then open **SolarDesk.exe** inside the extracted folder.
 
@@ -20,7 +20,7 @@ Screenshots use simulated monitors and a demo location.
 
 ## Install
 
-1. Click **[Download for Windows](https://github.com/WojtekMR3/SolarDesk/releases/download/v2.9.1/SolarDesk-2.9.1-win-x64.zip)** to download the app directly.
+1. Click **[Download for Windows](https://github.com/WojtekMR3/SolarDesk/releases/download/v2.9.2/SolarDesk-2.9.2-win-x64.zip)** to download the app directly.
 2. Right-click the ZIP and choose **Extract All**. Open the extracted `SolarDesk` folder and double-click `SolarDesk.exe`.
 3. Enable **DDC/CI** in your monitor's on-screen menu if needed.
 4. Choose a city or use Windows location, then set your Day and Night values.
