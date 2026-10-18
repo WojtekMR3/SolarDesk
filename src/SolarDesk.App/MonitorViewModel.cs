@@ -52,6 +52,9 @@ public sealed partial class MonitorViewModel(MonitorReading reading, MonitorProf
     public string DisplayDetails => Shape.IsKnown ? $"{Shape.Resolution} · {Shape.Aspect}" : Shape.Resolution;
     public double ScreenHeight => Math.Min(IsPrimary ? 44 : 36, 118 / Shape.Ratio);
     public double ScreenWidth => ScreenHeight * Shape.Ratio;
+    public double TrayScreenHeight => Math.Min(24, 70 / Shape.Ratio);
+    public double TrayScreenWidth => TrayScreenHeight * Shape.Ratio;
+    public string TrayDisplayDescription => $"{Name}\n{DisplayDetails}" + (IsPrimary ? "\nMain display" : "");
     private double cardWidth = 280;
     public double CardWidth { get => cardWidth; set { if (Math.Abs(cardWidth - value) < 0.5) return; cardWidth = value; OnPropertyChanged(); } }
     public bool IsNightProfile

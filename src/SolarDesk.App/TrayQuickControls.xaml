@@ -34,11 +34,11 @@
             <ListBox.ItemsPanel><ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate></ListBox.ItemsPanel>
             <ListBox.ItemContainerStyle>
               <Style TargetType="ListBoxItem">
-                <Setter Property="Width" Value="44"/><Setter Property="Height" Value="36"/><Setter Property="Margin" Value="0,0,8,4"/>
+                <Setter Property="MinWidth" Value="54"/><Setter Property="Height" Value="50"/><Setter Property="Margin" Value="0,0,8,4"/>
                 <Setter Property="Foreground" Value="{DynamicResource Text}"/><Setter Property="FontWeight" Value="SemiBold"/><Setter Property="Cursor" Value="Hand"/>
-                <Setter Property="ToolTip" Value="{Binding Name}"/><Setter Property="AutomationProperties.Name" Value="{Binding Name}"/>
+                <Setter Property="ToolTip" Value="{Binding TrayDisplayDescription}"/><Setter Property="AutomationProperties.Name" Value="{Binding TrayDisplayDescription}"/>
                 <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ListBoxItem">
-                  <Border x:Name="Surface" CornerRadius="9" Background="{DynamicResource SubtleSurface}" BorderBrush="{DynamicResource TabBorder}" BorderThickness="1">
+                  <Border x:Name="Surface" CornerRadius="9" Background="{DynamicResource SubtleSurface}" BorderBrush="{DynamicResource TabBorder}" BorderThickness="1" Padding="6,3">
                     <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                   </Border>
                   <ControlTemplate.Triggers>
@@ -49,12 +49,38 @@
                 </ControlTemplate></Setter.Value></Setter>
               </Style>
             </ListBox.ItemContainerStyle>
-            <ListBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding DisplayNumber}"/></DataTemplate></ListBox.ItemTemplate>
+            <ListBox.ItemTemplate>
+              <DataTemplate>
+                <StackPanel>
+                  <Grid Height="28">
+                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                      <Border x:Name="TrayMonitorScreen" Width="{Binding TrayScreenWidth}" Height="{Binding TrayScreenHeight}" CornerRadius="3" BorderThickness="1"
+                              BorderBrush="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ListBoxItem}}">
+                        <Viewbox StretchDirection="DownOnly" Margin="1,0"><TextBlock Text="{Binding DisplayNumber}" FontSize="11"/></Viewbox>
+                      </Border>
+                      <Border Width="1" Height="2" Background="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ListBoxItem}}"/>
+                      <Border Width="12" Height="1" CornerRadius="0.5" Background="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ListBoxItem}}"/>
+                    </StackPanel>
+                  </Grid>
+                  <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,1,0,0">
+                    <TextBlock x:Name="TrayMonitorRatio" Text="{Binding AspectText}" FontSize="9" FontWeight="Normal"/>
+                    <TextBlock x:Name="TrayMainLabel" Text=" · MAIN" FontSize="9" FontWeight="Bold">
+                      <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                          <Setter Property="Visibility" Value="Collapsed"/>
+                          <Style.Triggers><DataTrigger Binding="{Binding IsPrimary}" Value="True"><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers>
+                        </Style>
+                      </TextBlock.Style>
+                    </TextBlock>
+                  </StackPanel>
+                </StackPanel>
+              </DataTemplate>
+            </ListBox.ItemTemplate>
           </ListBox>
           <TextBlock x:Name="QuickMonitorName" Text="{Binding SelectedItem.Name, ElementName=QuickMonitor}" Foreground="{DynamicResource Muted}" FontSize="11" TextTrimming="CharacterEllipsis"
-                     ToolTip="{Binding SelectedItem.Name, ElementName=QuickMonitor}" Margin="0,3,0,0"/>
+                     ToolTip="{Binding SelectedItem.TrayDisplayDescription, ElementName=QuickMonitor}" Margin="0,1,0,0"/>
         </StackPanel>
-        <TextBlock x:Name="QuickHint" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,10,0,12"/>
+        <TextBlock x:Name="QuickHint" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,5,0,5"/>
         <UniformGrid Columns="3" Margin="0,0,0,12">
           <StackPanel>
             <TextBlock Text="Brightness" FontSize="11" TextAlignment="Center"/>

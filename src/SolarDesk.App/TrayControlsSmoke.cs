@@ -28,6 +28,12 @@ public partial class MainWindow
 
         check(panel.QuickMonitor.Items.Cast<MonitorViewModel>().Select(m => m.DisplayNumber).SequenceEqual(["1", "2", "3"]),
             "Tray monitor buttons use Windows display numbers in numeric order");
+        Border MonitorScreen(MonitorViewModel monitor) => VisualChildren<Border>(panel.QuickMonitor)
+            .Single(border => border.Name == "TrayMonitorScreen" && border.DataContext == monitor);
+        check(monitors.All(m => Math.Abs(MonitorScreen(m).ActualWidth / MonitorScreen(m).ActualHeight / m.Shape.Ratio - 1) < 0.06
+                && VisualChildren<TextBlock>(panel.QuickMonitor).Any(text => text.Name == "TrayMonitorRatio" && text.DataContext == m && text.Text == m.AspectText))
+            && MonitorScreen(monitors.First(m => m.IsPrimary)).ActualWidth > MonitorScreen(monitors[0]).ActualWidth * 1.2,
+            "Rendered tray monitor silhouettes preserve aspect ratios and make the ultrawide display visibly wider");
         var savedProfiles = monitors.Select(m => DisplayProfileValues.Capture(m.Profile)).ToArray();
         bool switchesCorrectly = true;
         foreach (var monitor in panel.QuickMonitor.Items.Cast<MonitorViewModel>())
@@ -40,6 +46,9 @@ public partial class MainWindow
         }
         check(switchesCorrectly && monitors.Select((m, i) => DisplayProfileValues.Capture(m.Profile) == savedProfiles[i]).All(same => same),
             "Selecting numbered monitor buttons loads the correct values without modifying any display profile");
+        check(monitors.All(m => VisualChildren<TextBlock>(panel.QuickMonitor).Single(text => text.Name == "TrayMainLabel" && text.DataContext == m).IsVisible == m.IsPrimary)
+            && ((ListBoxItem)panel.QuickMonitor.ItemContainerGenerator.ContainerFromItem(monitors.First(m => m.IsPrimary))).ToolTip.ToString()!.Contains("Main display", StringComparison.Ordinal),
+            "The tray MAIN marker stays on the primary display when another monitor is selected");
 
         panel.QuickMonitor.SelectedItem = monitors[0];
         int nightBrightness = monitors[0].NightBrightness;
@@ -135,12 +144,16 @@ public partial class MainWindow
         panel.UpdateLayout();
 
         var unavailable = new MonitorViewModel(DemoReadings()[0] with
-            { Id = "tray-unsupported", Name = "Unsupported display · Display 10", Display = "DISPLAY10", Brightness = null, Contrast = null, Saturation = null }, new MonitorProfile(), ProfileChanged);
+            { Id = "tray-unsupported", Name = "Portrait display · Display 10", Display = "DISPLAY10", PixelWidth = 1080, PixelHeight = 1920, Brightness = null, Contrast = null, Saturation = null }, new MonitorProfile(), ProfileChanged);
         settings.Monitors[unavailable.Id] = unavailable.Profile;
         monitors.Add(unavailable);
         UpdateLinkedControls();
         check(panel.QuickMonitor.Items.Cast<MonitorViewModel>().Select(m => m.DisplayNumber).SequenceEqual(["1", "2", "3", "10"]),
             "Connecting another display adds its numbered button in numeric order");
+        panel.UpdateLayout();
+        check(MonitorScreen(unavailable).ActualHeight > MonitorScreen(unavailable).ActualWidth
+            && VisualChildren<TextBlock>(panel.QuickMonitor).Any(text => text.Name == "TrayMonitorRatio" && text.DataContext == unavailable && text.Text == "9:16"),
+            "A connected portrait monitor gets a tall tray silhouette and a 9:16 label");
         panel.QuickMonitor.SelectedItem = unavailable;
         check(!panel.BrightnessSlider.IsEnabled && !panel.ContrastSlider.IsEnabled && !panel.SaturationSlider.IsEnabled
             && pendingSliderEdits.Count == 0, "Tray disables unsupported controls without writing to the display");

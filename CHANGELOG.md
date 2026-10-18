@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.9.5
+
+- Show numbered monitor silhouettes in the tray selector, scaled to each display's current aspect ratio, including ultrawide and portrait layouts.
+- Add aspect-ratio labels and a persistent MAIN marker on Windows' primary display, independently of which monitor is selected.
+- Include resolution, aspect ratio, and main-display status in monitor tooltips and accessibility labels.
+- Keep the vertical bars and compact tray layout without adding background polling.
+
 ## 2.9.4
 
 - Arrange tray brightness, contrast, and saturation as three vertical bars matching the main window; dragging upward increases the value.
