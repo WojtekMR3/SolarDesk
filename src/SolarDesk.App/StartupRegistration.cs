@@ -5,6 +5,7 @@ namespace SolarDesk;
 internal static class StartupRegistration
 {
     private const string RunPath = @"Software\Microsoft\Windows\CurrentVersion\Run";
+    private const string ApprovalPath = @"Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run";
     internal const string LegacyName = "SolarDesk";
 
     public static bool IsEnabled()
@@ -22,7 +23,9 @@ internal static class StartupRegistration
     public static void MigrateLegacy()
     {
         using var key = Registry.CurrentUser.OpenSubKey(RunPath, writable: true);
-        if (key is not null) MigrateLegacy(key, Environment.ProcessPath!);
+        if (key?.GetValue(LegacyName) is not string) return;
+        using var approval = Registry.CurrentUser.OpenSubKey(ApprovalPath, writable: true);
+        MigrateLegacy(key, Environment.ProcessPath!, approval);
     }
 
     internal static bool IsEnabled(RegistryKey key)
@@ -36,8 +39,13 @@ internal static class StartupRegistration
         key.DeleteValue(LegacyName, false);
     }
 
-    internal static void MigrateLegacy(RegistryKey key, string executable)
+    internal static void MigrateLegacy(RegistryKey key, string executable, RegistryKey? approval = null)
     {
-        if (key.GetValue(LegacyName) is string) SetEnabled(key, true, executable);
+        if (key.GetValue(LegacyName) is not string) return;
+        // Preserve Windows' enabled/disabled metadata as opaque data before renaming the entry.
+        // Keep an existing current registration's approval state and leave the legacy metadata intact.
+        if (key.GetValue(App.DisplayName) is null && approval?.GetValue(LegacyName, null, RegistryValueOptions.DoNotExpandEnvironmentNames) is { } state)
+            approval.SetValue(App.DisplayName, state, approval.GetValueKind(LegacyName));
+        SetEnabled(key, true, executable);
     }
 }

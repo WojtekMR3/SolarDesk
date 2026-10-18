@@ -30,7 +30,23 @@ public partial class MainWindow
             StartupRegistration.SetEnabled(key, false, executable);
             check(!StartupRegistration.IsEnabled(key) && key.ValueCount == 0,
                 "Disabling startup removes both current and legacy entries");
+
+            using var approval = key.CreateSubKey("Approval", true);
+            byte[] windowsState = [3, 0, 0, 0, 18, 52, 86, 120, 0, 0, 0, 0];
+            approval.SetValue(StartupRegistration.LegacyName, windowsState, RegistryValueKind.Binary);
+            key.SetValue(StartupRegistration.LegacyName, @"C:\Old\SolarDesk.exe --tray");
+            StartupRegistration.MigrateLegacy(key, executable, approval);
+            check(approval.GetValue(App.DisplayName) is byte[] preserved && preserved.SequenceEqual(windowsState)
+                && approval.GetValueKind(App.DisplayName) == RegistryValueKind.Binary,
+                "Rename preserves Windows startup approval metadata without interpreting or resetting it");
+            approval.SetValue(App.DisplayName, new byte[] { 2, 0, 0, 0 }, RegistryValueKind.Binary);
+            key.SetValue(StartupRegistration.LegacyName, @"C:\Old\SolarDesk.exe --tray");
+            StartupRegistration.MigrateLegacy(key, executable, approval);
+            check(approval.GetValue(App.DisplayName) is byte[] current && current.SequenceEqual(new byte[] { 2, 0, 0, 0 }),
+                "An existing Sunset Monitor startup choice wins over stale legacy approval metadata");
+            approval.Close();
+            key.DeleteSubKey("Approval");
         }
-        finally { Registry.CurrentUser.DeleteSubKey(path, throwOnMissingSubKey: false); }
+        finally { Registry.CurrentUser.DeleteSubKeyTree(path, throwOnMissingSubKey: false); }
     }
 }
