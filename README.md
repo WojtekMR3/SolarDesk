@@ -2,11 +2,11 @@
 
 Monitor controls that follow the sun. SolarDesk is a Windows tray app with separate Day and Night profiles, smooth sunrise/sunset transitions, and controls for multiple displays.
 
-<a href="https://github.com/WojtekMR3/SolarDesk/releases/download/v2.9.3/SolarDesk-2.9.3-win-x64.zip">
+<a href="https://github.com/WojtekMR3/SolarDesk/releases/download/v2.9.4/SolarDesk-2.9.4-win-x64.zip">
   <img src="docs/download-windows.svg" alt="Download for Windows" width="280" height="60">
 </a>
 
-**Free · Windows 10 / 11 (64-bit) · Version 2.9.3**
+**Free · Windows 10 / 11 (64-bit) · Version 2.9.4**
 
 Click the button to download the ZIP. Right-click the downloaded file, choose **Extract All**, then open **SolarDesk.exe** inside the extracted folder.
 
@@ -20,7 +20,7 @@ Screenshots use simulated monitors and a demo location.
 
 ## Install
 
-1. Click **[Download for Windows](https://github.com/WojtekMR3/SolarDesk/releases/download/v2.9.3/SolarDesk-2.9.3-win-x64.zip)** to download the app directly.
+1. Click **[Download for Windows](https://github.com/WojtekMR3/SolarDesk/releases/download/v2.9.4/SolarDesk-2.9.4-win-x64.zip)** to download the app directly.
 2. Right-click the ZIP and choose **Extract All**. Open the extracted `SolarDesk` folder and double-click `SolarDesk.exe`.
 3. Enable **DDC/CI** in your monitor's on-screen menu if needed.
 4. Choose a city or use Windows location, then set your Day and Night values.
@@ -31,7 +31,7 @@ Closing the window keeps SolarDesk in the system tray. Use the tray menu to quit
 
 SolarDesk works when opened normally or started in the tray. **Start with Windows** is off by default; enabling it launches SolarDesk quietly in the tray when you sign in. The `--tray` option only hides the initial window and is not required for monitor controls or automatic scheduling.
 
-**Single-click the tray icon** for quick brightness, contrast, and saturation sliders. Choose a display and Day/Night profile, toggle **Auto** beside the profile buttons, or use Mass and Offset modes for linked adjustments. Auto stays synchronized with the main window: on follows the sun, off keeps the selected profile active. Changes apply and save automatically. Click elsewhere or press **Esc** to dismiss the panel; double-click the icon or choose **Open full settings** to open the main window.
+**Single-click the tray icon** for three vertical brightness, contrast, and saturation bars. Drag upward to increase a value. Switch displays with numbered buttons such as **1 / 2 / 3**; the selected monitor's name appears below them. Choose Day/Night, toggle **Auto** beside the profile buttons, or use Mass and Offset modes for linked adjustments. Auto stays synchronized with the main window: on follows the sun, off keeps the selected profile active. Changes apply and save automatically. Click elsewhere or press **Esc** to dismiss the panel; double-click the icon or choose **Open full settings** to open the main window.
 
 The panel shows **Detecting displays…** while startup discovery is running. If values remain unavailable, use **Refresh displays** directly in the tray panel. Opening the panel also retries missing or unreadable displays, with a short cooldown between automatic retries.
 
