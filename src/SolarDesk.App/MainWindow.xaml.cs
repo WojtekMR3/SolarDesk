@@ -845,6 +845,7 @@ public partial class MainWindow : Window
         DayTab.IsChecked = true;
         Check(monitors[0].SelectedSaturation == 50, "Day/night selector updates saturation value");
         await RenderThemeTransitionAsync(Path.GetDirectoryName(output)!, "day");
+        await RenderAsync(Path.Combine(Path.GetDirectoryName(output)!, "theme-day.png"));
         monitors[0].SelectedSaturation = 60;
         await FlushSliderEditsAsync();
         Check(monitors[0].DaySaturation == 60 && monitors[0].NightSaturation == 72,
