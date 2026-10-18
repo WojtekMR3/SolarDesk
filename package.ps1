@@ -1,5 +1,8 @@
-param([string]$OutputDirectory)
+param([string]$OutputDirectory, [switch]$IncludeUi)
 $ErrorActionPreference = 'Stop'
+if (-not $IncludeUi -and $env:GITHUB_ACTIONS -ne 'true') {
+    throw 'Release packaging includes visible UI tests. Run it in GitHub Actions, or use -IncludeUi on a dedicated test desktop.'
+}
 $projectRoot = $PSScriptRoot
 [xml]$project = Get-Content -Raw -LiteralPath (Join-Path $projectRoot 'src\SolarDesk.App\SolarDesk.App.csproj')
 $version = [string]$project.Project.PropertyGroup.Version
@@ -14,7 +17,15 @@ if (Test-Path -LiteralPath $archivePath) { throw "Package already exists: $archi
 $stagingRoot = Join-Path $projectRoot ('artifacts\package-' + [Guid]::NewGuid().ToString('N'))
 $applicationDirectory = Join-Path $stagingRoot 'SolarDesk'
 & (Join-Path $projectRoot 'build.ps1') -OutputDirectory $applicationDirectory
-& (Join-Path $projectRoot 'test.ps1') -Executable (Join-Path $applicationDirectory 'SolarDesk.exe')
+& (Join-Path $projectRoot 'test.ps1') -Executable (Join-Path $applicationDirectory 'SolarDesk.exe') -IncludeUi
+
+# The public README points to the last published release until the new upload is ready.
+# Documentation inside the new ZIP must point to its own version.
+$bundledReadme = Join-Path $applicationDirectory 'README.md'
+$readme = [IO.File]::ReadAllText($bundledReadme)
+$readme = [regex]::Replace($readme, '/releases/download/v\d+\.\d+\.\d+/SolarDesk-\d+\.\d+\.\d+-win-x64\.zip', "/releases/download/v$version/SolarDesk-$version-win-x64.zip")
+$readme = [regex]::Replace($readme, 'Version \d+\.\d+\.\d+', "Version $version")
+[IO.File]::WriteAllText($bundledReadme, $readme, (New-Object Text.UTF8Encoding($false)))
 
 $expected = @('SolarDesk.exe', 'README.md', 'LICENSE', 'THIRD-PARTY-NOTICES.md', 'CHANGELOG.md', 'GeoNames-NOTICE.txt', 'docs', 'licenses')
 $unexpected = @(Get-ChildItem -LiteralPath $applicationDirectory -Force | Where-Object { $_.Name -notin $expected })

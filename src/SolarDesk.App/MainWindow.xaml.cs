@@ -29,6 +29,9 @@ public partial class MainWindow : Window
     private bool selectedNightProfile, applyProfileOnStartup = true, locationBusy, enableAfterLocation, startupPromptConsidered;
     private bool updatingProfileSelection, cycleRequested, forceRequestedCycle;
     private DateTimeOffset lastScan = DateTimeOffset.MinValue;
+    private DateTimeOffset lastTrayRefresh = DateTimeOffset.MinValue;
+    private bool scanningDisplays;
+    private Func<Task<List<MonitorReading>>>? diagnosticScan;
     private DateTimeOffset? manualUntil, pauseUntil;
     private double? manualDayAmount;
     private readonly Dictionary<string, HashSet<string>> pendingSliderEdits = [];
@@ -132,11 +135,14 @@ public partial class MainWindow : Window
                 refreshRequested = false;
                 if (diagnostic) diagnosticScanCount++;
                 RefreshButton.IsEnabled = false;
-                var readings = diagnostic ? DemoReadings() : await hardware.ScanAsync();
+                scanningDisplays = true;
+                UpdateTrayControls();
+                var readings = diagnostic ? await (diagnosticScan?.Invoke() ?? Task.FromResult(DemoReadings())) : await hardware.ScanAsync();
                 // Keep monitor columns in the same left-to-right, then top-to-bottom order as Windows' desktop layout.
                 readings = readings.OrderBy(reading => reading.Left).ThenBy(reading => reading.Top).ToList();
                 if (exiting) return;
                 lastScan = now;
+                scanningDisplays = false;
                 monitors.Clear();
                 foreach (var reading in readings)
                 {
@@ -223,7 +229,8 @@ public partial class MainWindow : Window
         catch (Exception ex) { ReportError(ex); }
         finally
         {
-            busy = false; RefreshButton.IsEnabled = true;
+            busy = false; scanningDisplays = false; RefreshButton.IsEnabled = true;
+            UpdateTrayControls();
             if (cycleRequested && !exiting)
             {
                 bool queuedForce = forceRequestedCycle;
@@ -905,6 +912,7 @@ public partial class MainWindow : Window
         await CheckProfileModesAsync(Check, directory);
         await CheckTrayControlsAsync(Check, directory);
         await CheckBackgroundActivityAsync(Check);
+        await CheckTrayAvailabilityAsync(Check);
         Message("Changes apply instantly and save automatically.");
         File.WriteAllLines(output, report);
     }

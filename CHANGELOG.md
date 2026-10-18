@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.9.2
+
+- Refresh tray values whenever the panel opens, and calculate Mass/Offset controls directly from monitor profiles instead of hidden main-window controls.
+- Keep tray sliders usable when the full settings overlay disables the main window's own controls.
+- Show detection progress during startup, retry missing or unreadable displays when opening the tray, and add a Refresh displays action inside the panel.
+- Throttle automatic tray retries and keep idle background operation quiet.
+- Clarify that tray startup is optional: enabling Start with Windows starts quietly at sign-in, while normal launches also support tray controls and scheduling.
+- Local test scripts now default to non-interactive core checks. UI testing and release packaging run in GitHub Actions unless explicitly requested on a dedicated test desktop.
+
 ## 2.9.1
 
 - Stop stars, sun rays, weather particles, and theme transitions when the main window loses focus, is minimized, or closes to the tray.

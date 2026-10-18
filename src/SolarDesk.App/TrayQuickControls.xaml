@@ -17,7 +17,7 @@
           <RadioButton x:Name="QuickNight" Content="Night" GroupName="QuickProfile" Style="{StaticResource ProfileTab}" Padding="12,7" MinWidth="0" MinHeight="36" Click="NightClick"/>
         </UniformGrid>
         <TextBlock Text="Control mode" Foreground="{DynamicResource Muted}" FontSize="11" Margin="0,0,0,4"/>
-        <ComboBox x:Name="QuickMode" Style="{StaticResource SettingsChoice}" AutomationProperties.Name="Quick control mode">
+        <ComboBox x:Name="QuickMode" Style="{StaticResource SettingsChoice}" SelectionChanged="ModeChanged" AutomationProperties.Name="Quick control mode">
           <ComboBoxItem Content="Individual"/>
           <ComboBoxItem Content="Mass"/>
           <ComboBoxItem Content="Offset"/>
@@ -31,21 +31,25 @@
           <TextBlock Text="Brightness"/>
           <TextBlock x:Name="BrightnessValue" HorizontalAlignment="Right" FontWeight="SemiBold"/>
         </Grid>
-        <Slider x:Name="BrightnessSlider" Foreground="{DynamicResource BrightnessThumb}" Margin="0,2,0,10" AutomationProperties.Name="Quick brightness"/>
+        <Slider x:Name="BrightnessSlider" Tag="Brightness" ValueChanged="ControlChanged" Foreground="{DynamicResource BrightnessThumb}" Margin="0,2,0,10" AutomationProperties.Name="Quick brightness"/>
         <Grid>
           <TextBlock Text="Contrast"/>
           <TextBlock x:Name="ContrastValue" HorizontalAlignment="Right" FontWeight="SemiBold"/>
         </Grid>
-        <Slider x:Name="ContrastSlider" Margin="0,2,0,10" AutomationProperties.Name="Quick contrast"/>
+        <Slider x:Name="ContrastSlider" Tag="Contrast" ValueChanged="ControlChanged" Margin="0,2,0,10" AutomationProperties.Name="Quick contrast"/>
         <Grid>
           <TextBlock Text="Saturation"/>
           <TextBlock x:Name="SaturationValue" HorizontalAlignment="Right" FontWeight="SemiBold"/>
         </Grid>
-        <Slider x:Name="SaturationSlider" Style="{StaticResource ColorSlider}" Margin="0,2,0,8" AutomationProperties.Name="Quick saturation"/>
+        <Slider x:Name="SaturationSlider" Tag="Saturation" ValueChanged="ControlChanged" Style="{StaticResource ColorSlider}" Margin="0,2,0,8" AutomationProperties.Name="Quick saturation"/>
         <TextBlock x:Name="QuickError" Foreground="{DynamicResource ErrorColor}" FontSize="11" TextWrapping="Wrap"/>
         <Border Height="1" Background="{DynamicResource Divider}" Margin="0,10,0,10"/>
         <TextBlock x:Name="QuickSchedule" Foreground="{DynamicResource Muted}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,12"/>
-        <Button Content="Open full settings" Click="OpenClick"/>
+        <Grid>
+          <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="8"/><ColumnDefinition/></Grid.ColumnDefinitions>
+          <Button x:Name="QuickRefresh" Content="Refresh displays" Click="RefreshClick" Style="{StaticResource QuietButton}" Padding="8,6" FontSize="11"/>
+          <Button Grid.Column="2" Content="Open full settings" Click="OpenClick" Padding="8,6"/>
+        </Grid>
       </StackPanel>
     </ScrollViewer>
   </Border>

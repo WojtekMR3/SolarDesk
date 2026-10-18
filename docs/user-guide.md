@@ -85,10 +85,10 @@ Requires a .NET 8 SDK on Windows. No third-party NuGet libraries are used. The f
 ```powershell
 .\build.ps1                 # Standalone Windows x64 executable
 .\build.ps1 -FrameworkDependent  # Smaller build; requires .NET 8 Desktop Runtime
-.\test.ps1                  # Core tests and UI smoke tests using a simulated monitor
+.\test.ps1                  # Core tests only; no windows or monitor hardware access
 ```
 
-If a project-local SDK is present in `.tools\dotnet`, the scripts use it; otherwise they use `dotnet` from PATH. Test reports and the rendered UI preview are saved under `artifacts`. Tests do not change real monitor settings.
+If a project-local SDK is present in `.tools\dotnet`, the scripts use it; otherwise they use `dotnet` from PATH. Run UI checks in GitHub Actions: they show and focus demo windows, despite the process being launched with a hidden startup style. On a dedicated test desktop only, use `test.ps1 -IncludeUi`. Test reports and the rendered UI preview are saved under `artifacts`. These checks use simulated monitors and do not change real monitor settings.
 
 Diagnostic modes:
 

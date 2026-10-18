@@ -1,4 +1,4 @@
-param([string]$Executable)
+param([string]$Executable, [switch]$IncludeUi)
 $ErrorActionPreference = 'Stop'
 $projectRoot = $PSScriptRoot
 $env:DOTNET_CLI_TELEMETRY_OPTOUT = '1'
@@ -10,6 +10,10 @@ $localSdk = Join-Path $projectRoot '.tools\dotnet\dotnet.exe'
 $sdk = if (Test-Path -LiteralPath $localSdk) { $localSdk } else { 'dotnet' }
 & $sdk run --project (Join-Path $projectRoot 'tests\SolarDesk.Tests\SolarDesk.Tests.csproj') -c Release
 if ($LASTEXITCODE -ne 0) { throw 'Core tests failed.' }
+if (-not $IncludeUi) {
+    Write-Output 'Core checks complete. UI checks run in GitHub Actions; -IncludeUi is for a dedicated test desktop.'
+    return
+}
 if (-not $Executable) {
     & $sdk build (Join-Path $projectRoot 'src\SolarDesk.App\SolarDesk.App.csproj') -c Release
     if ($LASTEXITCODE -ne 0) { throw 'App build failed.' }
@@ -19,6 +23,7 @@ $artifacts = Join-Path $projectRoot 'artifacts'
 New-Item -ItemType Directory -Path $artifacts -Force | Out-Null
 $executablePath = (Resolve-Path -LiteralPath $Executable).Path
 $report = Join-Path $artifacts 'ui-smoke.txt'
+if (Test-Path -LiteralPath $report) { Remove-Item -LiteralPath $report }
 $preview = Join-Path $artifacts 'preview.png'
 $arguments = @('--ui-smoke', '--output', ('"' + $report + '"'), '--render', ('"' + $preview + '"'))
 $run = Start-Process -FilePath $executablePath -ArgumentList $arguments -WindowStyle Hidden -PassThru
@@ -27,6 +32,9 @@ if (-not $run.WaitForExit(180000)) {
     throw 'UI smoke tests timed out after three minutes.'
 }
 $run.WaitForExit()
-if ($run.ExitCode -ne 0) { throw 'UI smoke tests failed.' }
+if ($run.ExitCode -ne 0) {
+    if (Test-Path -LiteralPath $report) { Get-Content -LiteralPath $report }
+    throw 'UI smoke tests failed.'
+}
 Get-Content -LiteralPath $report
 Write-Output "UI preview: $preview"

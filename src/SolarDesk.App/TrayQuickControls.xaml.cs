@@ -14,6 +14,9 @@ public partial class TrayQuickControls : Window
     internal Func<bool, Task>? SelectProfile { get; set; }
     internal Action? SelectMonitor { get; set; }
     internal Action? OpenSettings { get; set; }
+    internal Func<Task>? RefreshDisplays { get; set; }
+    internal Action<int>? SelectMode { get; set; }
+    internal Action<string, int>? AdjustSharedControl { get; set; }
 
     public TrayQuickControls()
     {
@@ -57,7 +60,13 @@ public partial class TrayQuickControls : Window
     private async void DayClick(object sender, RoutedEventArgs e) { if (SelectProfile is not null) await SelectProfile(false); }
     private async void NightClick(object sender, RoutedEventArgs e) { if (SelectProfile is not null) await SelectProfile(true); }
     private void MonitorChanged(object sender, SelectionChangedEventArgs e) => SelectMonitor?.Invoke();
+    private void ModeChanged(object sender, SelectionChangedEventArgs e) => SelectMode?.Invoke(QuickMode.SelectedIndex);
+    private void ControlChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+    {
+        if (sender is Slider { Tag: string name }) AdjustSharedControl?.Invoke(name, (int)Math.Round(e.NewValue));
+    }
     private void OpenClick(object sender, RoutedEventArgs e) { Hide(); OpenSettings?.Invoke(); }
+    private async void RefreshClick(object sender, RoutedEventArgs e) { if (RefreshDisplays is not null) await RefreshDisplays(); }
 
     [StructLayout(LayoutKind.Sequential)]
     private struct NativeRect { public int Left, Top, Right, Bottom; }

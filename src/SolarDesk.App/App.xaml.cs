@@ -83,7 +83,13 @@ public partial class App : Application
                 main.PromptLocationOnFirstLaunch(tray);
             }
         }
-        catch (Exception ex) { main.ReportError(ex); if (diagnostic) Shutdown(1); }
+        catch (Exception ex)
+        {
+            if (!diagnostic) { main.ReportError(ex); return; }
+            // Remote UI checks need the actual assertion, not only a nonzero exit code.
+            try { File.WriteAllText(Argument(e.Args, "--output") ?? Path.Combine(AppContext.BaseDirectory, "diagnostic-error.txt"), ex.ToString()); }
+            finally { Shutdown(1); }
+        }
     }
 
     public static string DataDirectory => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SolarDesk");

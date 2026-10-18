@@ -29,7 +29,11 @@ Requires **Windows 10 version 2004 or newer / Windows 11, x64**, and a compatibl
 
 Closing the window keeps SolarDesk in the system tray. Use the tray menu to quit. **Start with Windows** is optional in Settings.
 
+SolarDesk works when opened normally or started in the tray. **Start with Windows** is off by default; enabling it launches SolarDesk quietly in the tray when you sign in. The `--tray` option only hides the initial window and is not required for monitor controls or automatic scheduling.
+
 **Single-click the tray icon** for quick brightness, contrast, and saturation sliders. Choose a display and Day/Night profile, or use Mass and Offset modes for linked adjustments. Changes apply and save automatically. Click elsewhere or press **Esc** to dismiss the panel; double-click the icon or choose **Open full settings** to open the main window.
+
+The panel shows **Detecting displays…** while startup discovery is running. If values remain unavailable, use **Refresh displays** directly in the tray panel. Opening the panel also retries missing or unreadable displays, with a short cooldown between automatic retries.
 
 ## Features
 
@@ -70,12 +74,12 @@ To remove it, disable **Start with Windows**, quit, and delete its folder. Delet
 Install a **.NET 8 SDK (8.0.4xx)** on Windows, then run:
 
 ```powershell
-.\test.ps1                     # Core and simulated UI tests; no hardware writes
+.\test.ps1                     # Core tests only; no windows or hardware writes
 .\build.ps1                    # Standalone executable in dist\SolarDesk
-.\package.ps1                  # Tested release ZIP and SHA-256 checksum
+.\package.ps1                  # Tested release ZIP in GitHub Actions
 ```
 
-The first build needs NuGet access for Microsoft runtime and Windows targeting packages. There are no third-party NuGet library dependencies. A project-local SDK in `.tools\dotnet` is used when present; otherwise the scripts use `dotnet` from PATH. [Release process](docs/releasing.md).
+The first build needs NuGet access for Microsoft runtime and Windows targeting packages. There are no third-party NuGet library dependencies. A project-local SDK in `.tools\dotnet` is used when present; otherwise the scripts use `dotnet` from PATH. UI checks open and focus test windows, so run them in GitHub Actions. On a dedicated test desktop only, `test.ps1 -IncludeUi` and `package.ps1 -IncludeUi` opt into those checks. [Release process](docs/releasing.md).
 
 ## License and credits
 

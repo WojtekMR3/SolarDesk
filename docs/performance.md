@@ -28,17 +28,17 @@ The executable grew from approximately 75 MiB to 180 MiB on disk. This is a disk
 
 ## Reproduce the measurement
 
-Build the standalone executable, close other SolarDesk instances, and run:
+Use a dedicated test desktop or an isolated Windows environment. This benchmark shows a demo window; it must not run on someone's active working desktop. Build the standalone executable, close other SolarDesk instances, and run:
 
 ```powershell
 .\build.ps1
-.\benchmark.ps1 -Seconds 60
+.\benchmark.ps1 -Seconds 60 -IncludeUi
 ```
 
 For a different executable or output path:
 
 ```powershell
-.\benchmark.ps1 -Executable .\dist\SolarDesk\SolarDesk.exe -Seconds 60 -Output .\artifacts\performance.json
+.\benchmark.ps1 -Executable .\dist\SolarDesk\SolarDesk.exe -Seconds 60 -Output .\artifacts\performance.json -IncludeUi
 ```
 
 The benchmark spends the requested number of seconds in each of three phases, with a two-second settling period before each: hidden tray startup, an inactive visible Night window with rain effects enabled, and hidden again after opening the window. It shows a demo window without requesting foreground activation. Foreground state is held inactive inside the diagnostic harness so focus changes elsewhere cannot invalidate the comparison.

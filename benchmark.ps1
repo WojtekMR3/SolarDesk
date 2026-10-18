@@ -1,9 +1,13 @@
 param(
     [string]$Executable = (Join-Path $PSScriptRoot 'dist\SolarDesk\SolarDesk.exe'),
     [ValidateRange(15, 600)][int]$Seconds = 60,
-    [string]$Output = (Join-Path $PSScriptRoot 'artifacts\performance.json')
+    [string]$Output = (Join-Path $PSScriptRoot 'artifacts\performance.json'),
+    [switch]$IncludeUi
 )
 $ErrorActionPreference = 'Stop'
+if (-not $IncludeUi -and $env:GITHUB_ACTIONS -ne 'true') {
+    throw 'This benchmark shows a demo window. Run it in an isolated environment, or use -IncludeUi on a dedicated test desktop.'
+}
 $executablePath = (Resolve-Path -LiteralPath $Executable).Path
 $outputPath = [IO.Path]::GetFullPath($Output)
 New-Item -ItemType Directory -Path ([IO.Path]::GetDirectoryName($outputPath)) -Force | Out-Null
