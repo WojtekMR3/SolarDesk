@@ -150,6 +150,7 @@ public partial class MainWindow
         }
         finally { refreshingSharedPanel = false; }
         UpdateMatchMainButton();
+        UpdateTrayControls();
     }
 
     private void ResetOffsetsClick(object sender, RoutedEventArgs e)

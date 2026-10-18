@@ -386,7 +386,7 @@
             </StackPanel>
           </ScrollViewer>
           <Grid Grid.Row="2" Margin="0,18,0,0">
-            <StackPanel VerticalAlignment="Center"><TextBlock Text="SolarDesk 2.8.3" FontSize="11" Foreground="{DynamicResource Muted}"/><TextBlock Text="City data: GeoNames &#xB7; CC BY 4.0" FontSize="9" Foreground="{DynamicResource Muted}" Margin="0,4,0,0"/></StackPanel>
+            <StackPanel VerticalAlignment="Center"><TextBlock Text="{x:Static local:App.VersionLabel}" FontSize="11" Foreground="{DynamicResource Muted}"/><TextBlock Text="City data: GeoNames &#xB7; CC BY 4.0" FontSize="9" Foreground="{DynamicResource Muted}" Margin="0,4,0,0"/></StackPanel>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right"><Button Content="Quit app" Click="QuitClick" Style="{StaticResource QuietButton}" Margin="0,0,8,0"/><Button Content="Done" Click="CloseSettingsClick" Style="{StaticResource PrimaryButton}" MinWidth="80"/></StackPanel>
           </Grid>
         </Grid>

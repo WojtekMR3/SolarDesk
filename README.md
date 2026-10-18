@@ -29,8 +29,11 @@ Requires **Windows 10 version 2004 or newer / Windows 11, x64**, and a compatibl
 
 Closing the window keeps SolarDesk in the system tray. Use the tray menu to quit. **Start with Windows** is optional in Settings.
 
+**Single-click the tray icon** for quick brightness, contrast, and saturation sliders. Choose a display and Day/Night profile, or use Mass and Offset modes for linked adjustments. Changes apply and save automatically. Click elsewhere or press **Esc** to dismiss the panel; double-click the icon or choose **Open full settings** to open the main window.
+
 ## Features
 
+- **Tray quick controls** for brightness, contrast, saturation, profiles, and display modes with one click.
 - Separate **Day** and **Night** brightness, contrast, saturation, and supported picture settings.
 - **Auto** follows local sunrise and sunset, including catching up at startup and after wake. With Auto off, the selected profile stays active.
 - **Individual**, **Mass**, and **Offset** controls, each with saved Day/Night values. Offset preserves differences between displays.

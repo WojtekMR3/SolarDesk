@@ -293,6 +293,7 @@ public partial class MainWindow : Window
         }
         ResumeButton.Content = pauseUntil.HasValue ? "Resume auto" : "Follow sun now";
         if (tray is not null) tray.Text = ("SolarDesk · " + PhaseText.Text)[..Math.Min(63, ("SolarDesk · " + PhaseText.Text).Length)];
+        UpdateTrayControls();
     }
 
     private async void ProfileSelected(object sender, RoutedEventArgs e)
@@ -692,6 +693,7 @@ public partial class MainWindow : Window
         trayIcon = TrayArtwork.Create();
         Icon = Imaging.CreateBitmapSourceFromHIcon(trayIcon.Handle, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
         var menu = new Forms.ContextMenuStrip();
+        menu.Items.Add("Quick display controls", null, (_, _) => ShowTrayControls());
         menu.Items.Add("Open SolarDesk", null, (_, _) => ShowFromTray());
         menu.Items.Add("Resume automatic schedule", null, async (_, _) => await ResumeAsync());
         menu.Items.Add("Pause for 1 hour", null, (_, _) =>
@@ -707,10 +709,11 @@ public partial class MainWindow : Window
         menu.Items.Add(new Forms.ToolStripSeparator());
         menu.Items.Add("Quit SolarDesk", null, async (_, _) => await ExitAsync());
         tray = new Forms.NotifyIcon { Icon = trayIcon, Text = "SolarDesk", ContextMenuStrip = menu, Visible = true };
+        tray.MouseClick += (_, e) => { if (e.Button == Forms.MouseButtons.Left) ShowTrayControls(); };
         tray.DoubleClick += (_, _) => ShowFromTray();
     }
 
-    public void ShowFromTray() { Show(); WindowState = WindowState.Normal; Activate(); PromptLocationOnFirstLaunch(false); }
+    public void ShowFromTray() { trayControls?.Hide(); Show(); WindowState = WindowState.Normal; Activate(); PromptLocationOnFirstLaunch(false); }
     private void MinimizeClick(object sender, RoutedEventArgs e) => WindowState = WindowState.Minimized;
     private void HideClick(object sender, RoutedEventArgs e) => Hide();
     private async void QuitClick(object sender, RoutedEventArgs e) => await ExitAsync();
@@ -728,11 +731,12 @@ public partial class MainWindow : Window
             SystemEvents.TimeChanged -= TimeChanged;
         }
         tray?.Dispose(); tray = null; trayIcon?.Dispose();
+        trayControls?.CloseForExit(); trayControls = null;
         ReleasePresetHotkeys();
         await hardware.DisposeAsync();
         Close(); Application.Current.Shutdown();
     }
-    private void Message(string text) { MessageText.Text = text; MessageText.ToolTip = text; }
+    private void Message(string text) { MessageText.Text = text; MessageText.ToolTip = text; if (saveFailed) UpdateTrayControls(); }
     public void ReportError(Exception ex) { App.Log(ex); Message("Could not complete that action: " + ex.Message); }
 
     public async Task RenderAsync(string output)
@@ -891,6 +895,7 @@ public partial class MainWindow : Window
         await CheckAdditionalSettingsAsync(Check, directory);
         await CheckReviewRegressionsAsync(Check);
         await CheckProfileModesAsync(Check, directory);
+        await CheckTrayControlsAsync(Check, directory);
         Message("Changes apply instantly and save automatically.");
         File.WriteAllLines(output, report);
     }

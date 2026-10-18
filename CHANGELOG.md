@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.9.0
+
+- Single-click the tray icon to open quick brightness, contrast, and saturation controls.
+- Choose a display, switch Day/Night profiles, or adjust all displays using Mass and Offset modes without opening the main window.
+- Quick controls share the main window's saved values, capability checks, and automatic scheduling behavior.
+- The panel follows the selected profile's appearance, fits the current display's work area, and closes on Escape or when you click elsewhere.
+- Double-click still opens the main window; right-click keeps the existing tray menu and adds Quick display controls.
+
 ## 2.8.3
 
 First public release.

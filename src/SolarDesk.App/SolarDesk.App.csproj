@@ -9,7 +9,7 @@
     <AssemblyName>SolarDesk</AssemblyName>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <ApplicationIcon>Assets/SolarDesk.ico</ApplicationIcon>
-    <Version>2.8.3</Version>
+    <Version>2.9.0</Version>
     <Copyright>Copyright (c) 2026 WojtekMR3</Copyright>
     <Description>Monitor brightness and contrast that follow the sun.</Description>
   </PropertyGroup>

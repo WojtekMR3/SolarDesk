@@ -84,6 +84,7 @@ public partial class App : Application
     }
 
     public static string DataDirectory => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SolarDesk");
+    public static string VersionLabel => $"SolarDesk {typeof(App).Assembly.GetName().Version?.ToString(3)}";
     public static string? Argument(string[] args, string name)
     {
         int i = Array.IndexOf(args, name);
